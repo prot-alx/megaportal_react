@@ -32,9 +32,13 @@ export const UnassignedRequests: React.FC = () => {
     if (selectedTypes.length === 0) {
       setRequests([]);
     } else if (fetchedRequests) {
-      setRequests(fetchedRequests);
+      const filteredRequests = fetchedRequests.filter((req) =>
+        selectedTypes.includes(req.type)
+      );
+      setRequests(filteredRequests);
     }
   }, [fetchedRequests, selectedTypes]);
+  
 
   useEffect(() => {
     localStorage.setItem("selectedTypes", JSON.stringify(selectedTypes));

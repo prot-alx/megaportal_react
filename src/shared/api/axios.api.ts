@@ -3,7 +3,7 @@ import axios from "axios";
 
 const axiosInstance = axios.create({
   baseURL: "http://localhost:3333",
-  timeout: 1000,
+  timeout: 15000,
 });
 
 axiosInstance.interceptors.request.use(
@@ -15,7 +15,9 @@ axiosInstance.interceptors.request.use(
     return config;
   },
   (error) => {
-    return Promise.reject(error);
+    return Promise.reject(
+      error instanceof Error ? error : new Error(String(error))
+    );
   }
 );
 
@@ -35,7 +37,9 @@ axiosInstance.interceptors.response.use(
         AuthService.logout();
       }
     }
-    return Promise.reject(error);
+    return Promise.reject(
+      error instanceof Error ? error : new Error(String(error))
+    );
   }
 );
 

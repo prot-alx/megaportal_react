@@ -44,15 +44,11 @@ export const requestsApi = createApi({
   baseQuery,
   endpoints: (builder) => ({
     getRequests: builder.query<Requests[], FilterParams>({
-      query: ({ status, type }) => {
-        let queryString = "requests/filtered";
-
+      query: ({ status }) => {
         const params = new URLSearchParams();
         if (status) params.append("status", status);
-        if (type && type.length > 0) {
-          type.forEach((t) => params.append("type", t));
-        }
 
+        let queryString = "requests/filtered";
         if (params.toString()) {
           queryString += `?${params.toString()}`;
         }
