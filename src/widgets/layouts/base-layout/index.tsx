@@ -1,17 +1,9 @@
-import { useAppSelector } from "@/app/store/store";
 import { Footer } from "@/features/footer";
 import { Header } from "@/features/header";
-import { AuthForm } from "@/pages/login";
 import { FC } from "react";
 import { Outlet } from "react-router-dom";
 
 const BaseLayout: FC = () => {
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuth);
-
-  if (!isAuthenticated) {
-    return <AuthForm />;
-  }
-
   return (
     <div className="bg-slate-200">
       <div className="flex justify-center container bg-slate-300">

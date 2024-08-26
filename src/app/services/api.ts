@@ -6,8 +6,8 @@ interface Post {
   body: string;
 }
 
-export const api = createApi({
-  reducerPath: "api",
+export const postsApi = createApi({
+  reducerPath: "postsApi",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://jsonplaceholder.typicode.com/",
   }),
@@ -18,4 +18,4 @@ export const api = createApi({
   }),
 });
 
-export const { useGetPostsQuery } = api;
+export const { useGetPostsQuery } = postsApi;

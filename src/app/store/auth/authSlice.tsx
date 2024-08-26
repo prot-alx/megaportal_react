@@ -2,50 +2,27 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AuthService } from "./auth.service";
 import { RootState, AppDispatch } from "../store";
 import { IUserData, IUserMe, IUser } from "./types";
+import { AxiosError } from "axios";
+import { jwtDecode } from "jwt-decode";
 
-interface ApiError {
-  statusCode: number;
-  message: string;
-  details?: string;
-  timestamp?: string;
-  path?: string;
+interface AuthError {
+  title: string;
+  error: string | null;
 }
-
-export const loginAsync =
-  (userData: IUserData) => async (dispatch: AppDispatch) => {
-    try {
-      dispatch(setIsLoading(true));
-      const data = await AuthService.login(userData.login, userData.password);
-
-      if (data) {
-        dispatch(login(data));
-      } else {
-        dispatch(setError("Ошибка авторизации"));
-      }
-
-      dispatch(setIsLoading(false));
-    } catch (error) {
-      // Определяем тип ошибки
-      if (error instanceof Error) {
-        dispatch(setError(error.message));
-      } else if ((error as ApiError).message) {
-        dispatch(setError((error as ApiError).message));
-      } else {
-        dispatch(setError("Неизвестная ошибка"));
-      }
-      dispatch(setIsLoading(false));
-    }
-  };
 
 interface IUserState {
   user: IUserMe | null;
+  user_role: string | null;
+  user_name: string | null;
   isAuth: boolean;
   isLoading: boolean;
-  error: string | null;
+  error: AuthError | null;
 }
 
 const initialState: IUserState = {
   user: null,
+  user_role: null,
+  user_name: null,
   isAuth: false,
   isLoading: false,
   error: null,
@@ -55,34 +32,105 @@ export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login: (state, action: PayloadAction<IUser>) => {
-      if (action.payload?.token) {
-        localStorage.setItem("jwt_token", action.payload.token);
+    setUser: (state, action: PayloadAction<IUser>) => {
+      if (action.payload?.access_token) {
+        console.log("Сохраняем токен:", action.payload.access_token);
+        localStorage.setItem("access_token", action.payload.access_token);
+        localStorage.setItem("refresh_token", action.payload.refresh_token);
+
+        const decodedToken = jwtDecode<{ name: string; role: string }>(
+          action.payload.access_token
+        );
+
         state.user = action.payload;
+        state.user_role = decodedToken.role;
+        state.user_name = decodedToken.name;
         state.isAuth = true;
+
+        console.log("Состояние пользователя обновлено:", state);
       }
     },
-    setError: (state, action: PayloadAction<string>) => {
+    setError: (state, action: PayloadAction<AuthError>) => {
       state.error = action.payload;
+    },
+    clearError: (state) => {
+      state.error = null;
     },
     setIsLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
     logout: (state) => {
-      localStorage.removeItem("jwt_token");
+      console.log("Выполняется logout, удаление токена...");
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
       state.isAuth = false;
       state.user = null;
+      state.user_role = null;
+      state.user_name = null;
     },
     refresh: (state, action: PayloadAction<IUserMe>) => {
+      state.isLoading = true;
       if (action.payload) {
         state.isAuth = true;
         state.user = action.payload;
+
+        const accessToken = localStorage.getItem("access_token");
+        if (accessToken) {
+          const decodedToken = jwtDecode<{ name: string; role: string }>(
+            accessToken
+          );
+          state.user_role = decodedToken.role;
+          state.user_name = decodedToken.name;
+        }
+        state.isLoading = false;
+        console.log("Обновлены данные пользователя через refresh:", state.user);
       }
     },
-  },
+  },  
 });
 
-export const { logout, login, setError, setIsLoading, refresh } =
+export const { logout, setUser, setError, clearError, setIsLoading, refresh } =
   authSlice.actions;
+
+export const loginAsync =
+  (userData: IUserData) => async (dispatch: AppDispatch) => {
+    try {
+      dispatch(setIsLoading(true));
+      const data = await AuthService.login(userData.login, userData.password);
+
+      if (data) {
+        dispatch(setUser(data));
+      } else {
+        dispatch(
+          setError({
+            title: "Ошибка авторизации",
+            error: "Не удалось авторизоваться",
+          })
+        );
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        const title = error.response?.data?.message || "Неизвестная ошибка";
+        const errorDetails = error.response?.data?.details || null;
+
+        dispatch(setError({ title, error: errorDetails }));
+      } else if (error instanceof Error) {
+        dispatch(setError({ title: "Ошибка", error: error.message }));
+      } else {
+        dispatch(
+          setError({
+            title: "Неизвестная ошибка",
+            error: "Произошла неизвестная ошибка",
+          })
+        );
+      }
+    } finally {
+      dispatch(setIsLoading(false));
+    }
+  };
+
 export const selectAuth = (state: RootState) => state.auth;
+export const selectUserRole = (state: RootState) => state.auth.user_role;
+export const selectUserName = (state: RootState) => state.auth.user_name;
+
 export default authSlice.reducer;

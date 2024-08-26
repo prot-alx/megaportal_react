@@ -1,3 +1,4 @@
+import { cn } from "@/shared/utils";
 import { FC } from "react";
 import { NavLink } from "react-router-dom";
 
@@ -20,9 +21,12 @@ export const MenuList: FC<MenuListProps> = ({ items }) => {
             <NavLink
               to={item.link}
               className={({ isActive }) =>
-                isActive
-                  ? "flex h-12 items-center w-full justify-center bg-slate-300"
-                  : "flex h-12 items-center"
+                cn(
+                  "px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200",
+                  isActive
+                    ? "bg-slate-300 text-black"
+                    : "bg-transparent text-black hover:bg-gray-200"
+                )
               }
             >
               {item.text}
