@@ -8,9 +8,6 @@ const PrivateRoute = () => {
     return <div>Loading ...</div>;
   }
 
-  console.log("isAuth:", isAuth);
-  console.log("isLoading:", isLoading);
-
   return isAuth ? <Outlet /> : <Navigate to="/login" />;
 };
 

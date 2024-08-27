@@ -1,22 +1,40 @@
-import { FC } from "react";
-import { useGetPostsQuery } from "../app/services/api";
+import {
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+  Table,
+} from "@/shared/components/ui/table";
+import React from "react";
 
-const Posts: FC = () => {
-  const { data: posts, error, isLoading } = useGetPostsQuery();
+const mockData = [
+  { id: 1, name: "John Doe", email: "john@example.com", status: "Active" },
+  { id: 2, name: "Jane Smith", email: "jane@example.com", status: "Inactive" },
+  { id: 3, name: "Bob Johnson", email: "bob@example.com", status: "Pending" },
+];
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error occurred</div>;
-
+export const Posts: React.FC = () => {
   return (
-    <ul>
-      {posts?.map((post) => (
-        <li key={post.id}>
-          <h3 className="text-xl">{post.title}</h3>
-          <p>{post.body}</p>
-        </li>
-      ))}
-    </ul>
+    <Table className="min-w-full bg-white">
+      <TableHeader>
+        <TableRow>
+          <TableHead>ID</TableHead>
+          <TableHead>Name</TableHead>
+          <TableHead>Email</TableHead>
+          <TableHead>Status</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {mockData.map((row) => (
+          <TableRow key={row.id}>
+            <TableCell>{row.id}</TableCell>
+            <TableCell>{row.name}</TableCell>
+            <TableCell>{row.email}</TableCell>
+            <TableCell>{row.status}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 };
-
-export { Posts };

@@ -33,8 +33,7 @@ export const authSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action: PayloadAction<IUser>) => {
-      if (action.payload?.access_token) {
-        console.log("Сохраняем токен:", action.payload.access_token);
+      if (action.payload?.access_token) {        
         localStorage.setItem("access_token", action.payload.access_token);
         localStorage.setItem("refresh_token", action.payload.refresh_token);
 
@@ -110,8 +109,9 @@ export const loginAsync =
       }
     } catch (error) {
       if (error instanceof AxiosError) {
+        console.log(error.code)
         const title = error.response?.data?.message || "Неизвестная ошибка";
-        const errorDetails = error.response?.data?.details || null;
+        const errorDetails = error.response?.data?.details || error.code;
 
         dispatch(setError({ title, error: errorDetails }));
       } else if (error instanceof Error) {

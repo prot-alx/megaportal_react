@@ -6,6 +6,7 @@ export interface Requests {
   hr_id: number;
   ep_id?: string;
   client_id: string;
+  client_contacts?: string;
   description: string;
   address: string;
   request_date: string;
@@ -39,6 +40,12 @@ interface FilterParams {
   type?: RequestType[];
 }
 
+// Функция для преобразования формата даты из гг-мм-дд в дд-мм-гг
+const formatDate = (dateString: string): string => {
+  const [year, month, day] = dateString.split("-");
+  return `${day}-${month}-${year}`;
+};
+
 export const requestsApi = createApi({
   reducerPath: "requestsApi",
   baseQuery,
@@ -54,6 +61,13 @@ export const requestsApi = createApi({
         }
 
         return queryString;
+      },
+      // Преобразование даты после получения данных
+      transformResponse: (response: Requests[]) => {
+        return response.map((request) => ({
+          ...request,
+          request_date: formatDate(request.request_date),
+        }));
       },
     }),
   }),

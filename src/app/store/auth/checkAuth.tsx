@@ -24,7 +24,6 @@ export const checkAuth = async () => {
         store.dispatch(logout());
         return;
       }
-      // Обновите токен в локальном хранилище
       localStorage.setItem("access_token", refreshedData.access_token);
     }
 

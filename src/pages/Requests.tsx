@@ -7,6 +7,14 @@ import {
   useGetRequestsQuery,
 } from "@/app/services/requestApi";
 import { Checkbox } from "@/shared/components/ui/checkbox";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/shared/components/ui/table";
 
 const requestTypes = Object.values(RequestType);
 
@@ -38,7 +46,6 @@ export const UnassignedRequests: React.FC = () => {
       setRequests(filteredRequests);
     }
   }, [fetchedRequests, selectedTypes]);
-  
 
   useEffect(() => {
     localStorage.setItem("selectedTypes", JSON.stringify(selectedTypes));
@@ -55,7 +62,7 @@ export const UnassignedRequests: React.FC = () => {
   if (isLoading) return <div>Loading...</div>;
 
   if (error) {
-    return <div>Error occurred</div>;
+    return <div>Error occurred: {JSON.stringify(error)}</div>;
   }
 
   return (
@@ -74,14 +81,32 @@ export const UnassignedRequests: React.FC = () => {
           </div>
         ))}
       </div>
-      <ul>
-        {requests?.map((req) => (
-          <li key={req.id}>
-            {req.client_id} ||| {req.address} ||| {req.type} ||| {req.status}{" "}
-            ||| {req.description}
-          </li>
-        ))}
-      </ul>
+      <Table className="min-w-full bg-white">
+        <TableHeader>
+          <TableRow>
+            <TableHead>ID</TableHead>
+            <TableHead>Абонент</TableHead>
+            <TableHead>Адрес</TableHead>
+            <TableHead>Описание</TableHead>
+            <TableHead>Контактные данные</TableHead>
+            <TableHead>Дата выезда</TableHead>
+            <TableHead>Тип</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {requests.map((req) => (
+            <TableRow key={req.id}>
+              <TableCell>{req.id}</TableCell>
+              <TableCell>{req.client_id}</TableCell>
+              <TableCell>{req.address}</TableCell>
+              <TableCell>{req.description}</TableCell>
+              <TableCell>{req.client_contacts}</TableCell>
+              <TableCell>{req.request_date}</TableCell>
+              <TableCell>{req.type}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 };

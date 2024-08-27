@@ -24,19 +24,45 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response && error.response.status === 401) {
-      // Token expired or unauthorized, attempt to refresh
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
       try {
+        const refreshToken = localStorage.getItem("refresh_token");
+
+        // Если нет refresh токена или он истек, выполнить логаут
+        if (!refreshToken || AuthService.isTokenExpired(refreshToken)) {
+          AuthService.logout();
+          return Promise.reject(
+            new Error("Refresh token expired. Logging out...")
+          );
+        }
+
+        // Попробовать обновить токен
         const refreshedData = await AuthService.refreshToken();
         if (refreshedData) {
-          return axiosInstance.request(error.config); // Retry the failed request
+          localStorage.setItem("access_token", refreshedData.access_token);
+          localStorage.setItem("refresh_token", refreshedData.refresh_token);
+
+          axiosInstance.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${refreshedData.access_token}`;
+          originalRequest.headers[
+            "Authorization"
+          ] = `Bearer ${refreshedData.access_token}`;
+
+          return axiosInstance(originalRequest);
         }
-      } catch (refreshError) {
-        // Handle refresh token error (logout, etc.)
-        console.log(refreshError);
+      } catch (err) {
         AuthService.logout();
+        return Promise.reject(
+          err instanceof Error ? err : new Error(String(err))
+        );
       }
     }
+
     return Promise.reject(
       error instanceof Error ? error : new Error(String(error))
     );

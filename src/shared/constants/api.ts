@@ -6,8 +6,6 @@ export const checkAuthURL: string = "auth/checkauth";
 
 export const  refreshTokenURL : string = "auth/refresh";
 
-//export const gamesURL: string = 'games'
-
 export const headers = {
   Authorization: "Bearer " + localStorage.getItem("access_token"),
   "Content-Type": "application/x-www-form-urlencoded",
