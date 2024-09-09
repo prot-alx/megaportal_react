@@ -7,24 +7,23 @@ export const baseQuery: BaseQueryFn<
   unknown,
   unknown
 > = async (args) => {
-  // Получаем токен из localStorage
-  const accessToken = localStorage.getItem("access_token");
-
   try {
-    // Устанавливаем токен в заголовки
-    const result =
-      typeof args === "string"
-        ? await axiosInstance.get(args, {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          })
-        : await axiosInstance({
-            ...args,
-            headers: {
-              ...args.headers,
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
-
+    let result;
+    if (typeof args === "string") {
+      result = await axiosInstance.get(args);
+    } else {
+      const { url, method, data, headers } = args;
+      const config: AxiosRequestConfig = {
+        url,
+        method,
+        headers: {
+          ...(headers || {}),
+          "Content-Type": "application/json",
+        },
+        data,
+      };
+      result = await axiosInstance(config);
+    }
     return { data: result.data };
   } catch (axiosError) {
     const err = axiosError as AxiosError;

@@ -1,14 +1,14 @@
-import { AuthForm } from "@/pages/login";
-import { Posts } from "@/pages/Posts";
-import { UnassignedRequests } from "@/pages/Requests";
+import { AuthPage } from "@/pages/Auth";
+import { AllRequests } from "@/pages/Requests";
 import { BaseLayout } from "@/widgets";
 import PrivateRoute from "@/widgets/layouts/private-route/private-route";
 import { createBrowserRouter, Navigate } from "react-router-dom";
+import { RequestStatus } from "./services/requestApi";
 
 export const appRouter = createBrowserRouter([
   {
     path: "/login",
-    element: <AuthForm />,
+    element: <AuthPage />,
     errorElement: <div>404</div>,
   },
   {
@@ -21,37 +21,37 @@ export const appRouter = createBrowserRouter([
           {
             path: "/",
             index: true,
-            element: <Navigate to="/assigned" />,
+            element: <Navigate to="/unassigned" />,
             errorElement: <div>404</div>,
           },
           {
             path: "/unassigned",
-            element: <UnassignedRequests />,
+            element: <AllRequests status={RequestStatus.NEW}/>,
             errorElement: <div>404</div>,
           },
           {
             path: "/assigned",
-            element: <div>assigned</div>,
+            element: <AllRequests status={RequestStatus.IN_PROGRESS}/>,
             errorElement: <div>404</div>,
           },
           {
             path: "/completed",
-            element: <Posts />,
+            element: <AllRequests status={RequestStatus.SUCCESS}/>,
             errorElement: <div>404</div>,
           },
           {
             path: "/monitoring",
-            element: <div>monitoring</div>,
+            element: <AllRequests status={RequestStatus.MONITORING}/>,
             errorElement: <div>404</div>,
           },
           {
             path: "/postponed",
-            element: <div>postponed</div>,
+            element: <AllRequests status={RequestStatus.POSTPONED}/>,
             errorElement: <div>404</div>,
           },
           {
             path: "/history",
-            element: <div>history</div>,
+            element: <div><AllRequests status={RequestStatus.CANCELLED}/></div>,
             errorElement: <div>404</div>,
           },
           {

@@ -82,7 +82,6 @@ export const authSlice = createSlice({
           state.user_name = decodedToken.name;
         }
         state.isLoading = false;
-        console.log("Обновлены данные пользователя через refresh:", state.user);
       }
     },
   },  

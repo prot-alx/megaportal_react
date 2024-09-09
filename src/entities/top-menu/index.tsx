@@ -22,7 +22,7 @@ export const MenuList: FC<MenuListProps> = ({ items }) => {
               to={item.link}
               className={({ isActive }) =>
                 cn(
-                  "px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200",
+                  "px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 align-middle",
                   isActive
                     ? "bg-slate-300 text-black"
                     : "bg-transparent text-black hover:bg-gray-200"

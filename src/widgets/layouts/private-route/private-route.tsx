@@ -5,7 +5,7 @@ const PrivateRoute = () => {
   const { isAuth, isLoading } = useAppSelector((state) => state.auth);
 
   if (isLoading) {
-    return <div>Loading ...</div>;
+    return <div></div>;
   }
 
   return isAuth ? <Outlet /> : <Navigate to="/login" />;

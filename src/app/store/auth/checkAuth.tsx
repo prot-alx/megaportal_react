@@ -29,7 +29,6 @@ export const checkAuth = async () => {
 
     const userData = await AuthService.getMe();
     if (userData) {
-      console.log("Данные пользователя успешно получены:", userData);
       store.dispatch(refresh(userData));
     } else {
       console.log("Не удалось получить данные пользователя, разлогинивание...");
