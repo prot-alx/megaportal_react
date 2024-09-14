@@ -56,6 +56,10 @@ export enum RequestStatus {
 interface FilterParams {
   status?: RequestStatus;
   type?: RequestType[];
+  startDate?: string;
+  endDate?: string;
+  page?: number;
+  limit?: number;
 }
 
 interface UpdateRequestTypeParams {
@@ -79,6 +83,12 @@ export interface Performer {
   name: string;
 }
 
+interface PaginatedRequests {
+  data: Requests[];
+  totalPages: number;
+  page: number;
+}
+
 // Функция для преобразования формата даты из гг-мм-дд в дд-мм-гг
 const formatDate = (dateString: string): string => {
   const [year, month, day] = dateString.split("-");
@@ -90,28 +100,38 @@ export const requestsApi = createApi({
   baseQuery,
   tagTypes: ["Requests", "Request", "Performers"],
   endpoints: (builder) => ({
-    getRequests: builder.query<Requests[], FilterParams>({
-      query: ({ status }) => {
+    getRequests: builder.query<PaginatedRequests, FilterParams>({
+      query: ({ status, type, startDate, endDate, page = 1, limit = 10 }) => {
         const params = new URLSearchParams();
-        if (status) params.append("status", status);
 
-        let queryString = "requests/filtered";
-        if (params.toString()) {
-          queryString += `?${params.toString()}`;
-        }
+        if (status) params.append("status", status);
+        if (type) params.append("type", type.join(","));
+        if (startDate) params.append("startDate", startDate);
+        if (endDate) params.append("endDate", endDate);
+        if (page) params.append("page", String(page));
+        if (limit) params.append("limit", String(limit));
+
+        const queryString = `requests/filtered${
+          params.toString() ? `?${params.toString()}` : ""
+        }`;
 
         return queryString;
       },
-      transformResponse: (response: Requests[]) => {
-        return response.map((request) => ({
-          ...request,
-          request_date: formatDate(request.request_date),
-        }));
+      transformResponse: (response: PaginatedRequests) => {
+        return {
+          ...response,
+          data: response.data.map((request) => ({
+            ...request,
+            request_date: formatDate(request.request_date),
+          })),
+        };
       },
       providesTags: (result) =>
-        result
+        result?.data
           ? [
-              ...result.map(({ id }) => ({ type: "Requests", id } as const)),
+              ...result.data.map(
+                ({ id }) => ({ type: "Requests", id } as const)
+              ),
               { type: "Requests", id: "LIST" },
             ]
           : [{ type: "Requests", id: "LIST" }],
@@ -282,6 +302,36 @@ export const requestsApi = createApi({
         return [{ type: "Requests", id: "LIST" }];
       },
     }),
+    unassignRequest: builder.mutation<
+      void,
+      { request_id: number; performer_id: number }
+    >({
+      query: ({ request_id, performer_id }) => ({
+        url: `/request-data/${request_id}/performer/${performer_id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (result, error, { request_id }) => {
+        // Если произошла ошибка, логируем её
+        if (error) {
+          console.error(
+            "Ошибка при отмене назначения заявки:",
+            error instanceof Error ? error : new Error(String(error))
+          );
+          return []; // В случае ошибки не аннулируем теги
+        }
+
+        // Если операция прошла успешно, аннулируем теги для обновления данных
+        if (result) {
+          return [
+            { type: "Requests", id: request_id },
+            { type: "Requests", id: "LIST" },
+          ];
+        }
+
+        // Базовая логика аннулирования
+        return [{ type: "Requests", id: "LIST" }];
+      },
+    }),
     getPerformersByRequestId: builder.query<Performer[], number>({
       query: (requestId) => ({
         url: `request-data/${requestId}/performers`,
@@ -320,4 +370,5 @@ export const {
   useUpdateRequestMutation,
   useAssignRequestMutation,
   useGetPerformersByRequestIdQuery,
+  useUnassignRequestMutation,
 } = requestsApi;

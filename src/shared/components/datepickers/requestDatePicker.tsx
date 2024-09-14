@@ -23,12 +23,14 @@ interface DatePickerProps {
   id: number;
   initialDate?: string;
   onDateChange?: (id: number, date: Date) => void;
+  requestStatus: string;
 }
 
 export const RequestDatePicker: React.FC<DatePickerProps> = ({
   id,
   initialDate,
   onDateChange,
+  requestStatus,
 }) => {
   const [someDate, setSomeDate] = React.useState<Date | undefined>(
     getInitialDate(initialDate)
@@ -54,6 +56,17 @@ export const RequestDatePicker: React.FC<DatePickerProps> = ({
   };
 
   const buttonColorClass = getButtonColorClass(someDate);
+
+  // Если статус закрыт или отменен, выводим строковое представление даты
+  if (requestStatus === "CLOSED" || requestStatus === "CANCELLED") {
+    return (
+      <div className="text-gray-800">
+        {someDate
+          ? format(someDate, "d MMMM yyyy", { locale: ru })
+          : "Дата не указана"}
+      </div>
+    );
+  }
 
   return (
     <div>

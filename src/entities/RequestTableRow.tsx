@@ -2,7 +2,6 @@ import { EmployeeSummaryDto } from "@/app/services/employeeApi";
 import {
   Requests,
   RequestType,
-  useCancelRequestMutation,
   useGetPerformersByRequestIdQuery,
   useUpdateRequestDateMutation,
   useUpdateRequestTypeMutation,
@@ -13,25 +12,14 @@ import { RequestTypeSelector } from "@/shared/components/selectors/requestChange
 import { LoadingSpinner } from "@/shared/components/ui/preloader";
 import { TableCell, TableRow } from "@/shared/components/ui/table";
 import { format } from "date-fns";
-import { RiCloseLargeFill } from "@remixicon/react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
-import { useCallback, useState } from "react";
-import { RequestEdit } from "@/features/RequestEdit";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/shared/components/ui/alert-dialog";
+import { useCallback } from "react";
+import { RequestEdit } from "@/features/RequestEditButton";
 
 interface RequestTableRowProps {
   request: Requests;
@@ -54,17 +42,11 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
     updateRequestType,
     { isLoading: isTypeLoading, isError: isTypeError },
   ] = useUpdateRequestTypeMutation();
-  const [
-    cancelRequest,
-    { isLoading: isCancelLoading, isError: isCancelError },
-  ] = useCancelRequestMutation();
   const {
     data: performers,
     isLoading: isPerformersLoading,
     error: performersError,
   } = useGetPerformersByRequestIdQuery(request.id);
-
-  const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   const handleUpdateRequestDate = useCallback(
     async (id: number, newDate: string) => {
@@ -96,30 +78,10 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
     [updateRequestType]
   );
 
-  const handleCancelRequest = async (id: number) => {
-    try {
-      await cancelRequest(id).unwrap();
-      console.log("Request cancelled:", id);
-    } catch (error) {
-      console.error("Failed to cancel request:", error);
-    }
-  };
-
-  const handleAlertCancel = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsAlertOpen(false);
-  };
-
-  const handleAlertConfirm = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsAlertOpen(false);
-    handleCancelRequest(request.id);
-  };
-
   return (
     <TableRow
       key={request.id}
-      className="block xl:table-row border-t border-gray-200 group"
+      className="block xl:table-row border-y-2 border-gray-300 group"
     >
       <TableCell className="block xl:table-cell py-2">
         <span className="xl:hidden font-medium">Абонент: </span>
@@ -137,7 +99,7 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
         <span className="xl:hidden font-medium">Адрес: </span>
         {request.address}
       </TableCell>
-      <TableCell className="block xl:table-cell py-2">
+      <TableCell className="block xl:table-cell py-2 min-w-[145px]">
         <span className="xl:hidden font-medium">Контакты: </span>
         <a className="xl:hidden" href={`tel:${request.client_contacts}`}>
           {request.client_contacts}
@@ -157,6 +119,7 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
             onDateChange={(id, date) =>
               handleUpdateRequestDate(id, format(date, "yyyy-MM-dd"))
             }
+            requestStatus={request.status}
           />
         )}
       </TableCell>
@@ -171,13 +134,14 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
             requestId={request.id}
             initialType={request.type}
             onTypeChange={handleUpdateRequestType}
+            requestStatus={request.status}
           />
         )}
       </TableCell>
       <TableCell className="block xl:table-cell py-2">
         <span className="xl:hidden font-medium">Назначение: </span>
         <div className="flex flex-col gap-3">
-          {/* Показать загрузку, пока данные загружаются */}
+
           {isPerformersLoading && <LoadingSpinner />}
 
           {/* Показать селектор без исполнителя, если есть ошибка или исполнители не назначены */}
@@ -188,6 +152,7 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
                 employees={employees}
                 onSelect={onSelect}
                 selectorText="Выберите исполнителя..."
+                requestStatus={request.status}
               />
             )}
 
@@ -203,6 +168,7 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
                 initialSelectedEmployee={performer}
                 onSelect={onSelect}
                 selectorText="Выберите исполнителя..."
+                requestStatus={request.status}
               />
             ))}
         </div>
@@ -213,69 +179,19 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
         12 12e 12e 12
       </TableCell>
       <TableCell className="block xl:table-cell py-2">
-        <span className="xl:hidden font-medium">Редактировать: </span>
+        {request.status !== "CLOSED" && request.status !== "CANCELLED" && (
+          <span className="xl:hidden font-medium">Редактировать: </span>
+        )}
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger>
-              <RequestEdit request={request} />
+            <TooltipTrigger asChild>
+              <RequestEdit request={request} requestStatus={request.status} />
             </TooltipTrigger>
             <TooltipContent>
               <p>Редактировать</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-      </TableCell>
-      <TableCell className="block xl:table-cell py-2">
-        <span className="xl:hidden font-medium">
-          Закрыть отказом/отменить:{" "}
-        </span>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              {!isCancelLoading && !isCancelError && (
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setIsAlertOpen(true)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault(); // предотвращает прокрутку при нажатии пробела
-                      handleCancelRequest(request.id);
-                    }
-                  }}
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 w-10 p-2 hover:bg-red-400 opacity-10 hover:opacity-90"
-                >
-                  <RiCloseLargeFill
-                    size="30px"
-                    color="black"
-                    className="min-w-[30px] min-h-[30px] max-w-[30px] max-h-[30px]"
-                  />
-                </div>
-              )}
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Отменить заявку</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-          <AlertDialogContent className="w-[300px]">
-            <AlertDialogHeader>
-              <AlertDialogTitle>Подтверждение</AlertDialogTitle>
-            </AlertDialogHeader>
-            <AlertDialogDescription>
-              Вы уверены, что хотите отменить заявку? Это действие необратимо.
-            </AlertDialogDescription>
-            <AlertDialogFooter className="gap-10">
-              <AlertDialogCancel onClick={handleAlertCancel}>
-                Отмена
-              </AlertDialogCancel>
-              <AlertDialogAction onClick={handleAlertConfirm}>
-                Подтвердить
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </TableCell>
     </TableRow>
   );

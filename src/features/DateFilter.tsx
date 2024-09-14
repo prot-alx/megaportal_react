@@ -34,12 +34,22 @@ export const DateFilter: React.FC<DateFilterProps> = ({ dateFilterCounts }) => {
     { label: "Будущие", filter: "future", count: dateFilterCounts.future },
   ];
 
+  // Логика для изменения цвета триггера
+  const isPartiallySelected = selectedDateFilters.length > 0 && !isAllSelected;
+
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="flex bg-white text-gray-500 w-[150px] hover:bg-slate-300 hover:text-gray-800 cursor-pointer h-10 px-4 py-2 items-center justify-around whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
-          <p>Дата</p>
-          <RiFilterLine size="15px" className="block"/>
+        <div
+          className={`flex bg-white w-[150px] h-10 px-4 py-2 items-center justify-between whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50
+            ${
+              isPartiallySelected
+                ? "text-gray-100 bg-gray-500"
+                : "text-gray-500 hover:bg-slate-300 hover:text-gray-800"
+            }`}
+        >
+          <p>Дата выезда</p>
+          <RiFilterLine size="15px" className="block" />
         </div>
       </PopoverTrigger>
       <PopoverContent className="p-4 hidden xl:flex xl:flex-col">

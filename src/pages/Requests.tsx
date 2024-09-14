@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useGetRequestsQuery, RequestStatus } from "@/app/services/requestApi";
 import { useGetEmployeesQuery, EmployeeRole } from "@/app/services/employeeApi";
@@ -10,7 +10,6 @@ import {
   TableRow,
   TableHead,
 } from "@/shared/components/ui/table";
-import { RequestTableRow } from "@/features/RequestTableRow";
 import { DateFilter } from "@/features/DateFilter";
 import { TypeFilter } from "@/features/TypeFilter";
 import { setRequests } from "@/entities/slices/requestSlice";
@@ -23,7 +22,9 @@ import {
   parse,
   startOfDay,
 } from "date-fns";
-import { RiCloseLargeFill, RiEditLine } from "@remixicon/react";
+import { RiEditLine } from "@remixicon/react";
+import { RequestPagination } from "@/features/RequestPagination";
+import { RequestTableRow } from "@/entities/RequestTableRow";
 
 interface UnassignedRequestsProps {
   status: RequestStatus;
@@ -31,6 +32,9 @@ interface UnassignedRequestsProps {
 
 export const AllRequests: React.FC<UnassignedRequestsProps> = ({ status }) => {
   const dispatch = useDispatch();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   const {
     data: employees,
     isLoading: empIsLoading,
@@ -46,7 +50,11 @@ export const AllRequests: React.FC<UnassignedRequestsProps> = ({ status }) => {
   } = useGetRequestsQuery({
     status,
     type: useAppSelector((state: RootState) => state.filters.selectedTypes),
+    page: currentPage,
+    limit: itemsPerPage,
   });
+
+  const totalPages = fetchedRequests?.totalPages ?? 0;
 
   const requests = useAppSelector(
     (state: RootState) => state.requests.requests
@@ -90,6 +98,13 @@ export const AllRequests: React.FC<UnassignedRequestsProps> = ({ status }) => {
 
   return (
     <div>
+      {totalPages > 1 && (
+        <RequestPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      )}
       <div className="flex justify-between mb-4"></div>
       <Table className="min-w-full bg-white">
         <TableHeader className="hidden xl:table-header-group">
@@ -103,16 +118,15 @@ export const AllRequests: React.FC<UnassignedRequestsProps> = ({ status }) => {
               <DateFilter dateFilterCounts={dateFilterCounts} />
             </TableHead>
             <TableHead>
-              <TypeFilter fetchedRequests={fetchedRequests || []} />
+              <TypeFilter fetchedRequests={fetchedRequests?.data || []} />
             </TableHead>
             <TableHead>Исполнитель</TableHead>
             <TableHead>Комментарий</TableHead>
-            <TableHead>
-              <RiEditLine size="25px" color="black" />
-            </TableHead>
-            <TableHead>
-              <RiCloseLargeFill size="25px" color="black" />
-            </TableHead>
+            {status !== "CLOSED" && status !== "CANCELLED" && (
+              <TableHead className="flex items-center justify-center opacity-60">
+                <RiEditLine size="25px" color="black" />
+              </TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>

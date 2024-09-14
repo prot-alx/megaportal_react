@@ -15,15 +15,13 @@ import {
 } from "@/shared/components/ui/popover";
 import { cn } from "@/shared/utils";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
-import { RiCheckLine } from "@remixicon/react";
+import { RiAddLine, RiCloseCircleLine } from "@remixicon/react";
 import { useEffect, useState } from "react";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
-import { useAssignRequestMutation } from "@/app/services/requestApi";
+  useAssignRequestMutation,
+  useUnassignRequestMutation,
+} from "@/app/services/requestApi";
+import ActionMenu from "@/features/ActionMenu";
 
 interface EmployeeSelectorProps {
   employees: EmployeeSummaryDto[];
@@ -31,6 +29,7 @@ interface EmployeeSelectorProps {
   selectorText: string;
   requestID: number;
   initialSelectedEmployee?: EmployeeSummaryDto | null;
+  requestStatus: string;
 }
 
 export const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
@@ -38,7 +37,8 @@ export const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
   onSelect,
   selectorText,
   requestID,
-  initialSelectedEmployee = null, // Установим по умолчанию null
+  initialSelectedEmployee = null,
+  requestStatus,
 }) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState<string>(
@@ -51,6 +51,7 @@ export const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
   const isEmployeeSelected = !!selectedEmployee;
 
   const [assignRequest] = useAssignRequestMutation();
+  const [unassignRequest] = useUnassignRequestMutation();
 
   useEffect(() => {
     if (initialSelectedEmployee) {
@@ -76,6 +77,25 @@ export const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
     }
   };
 
+  const handleUnassign = async () => {
+    if (selectedEmployee) {
+      try {
+        await unassignRequest({
+          request_id: requestID,
+          performer_id: selectedEmployee.id,
+        }).unwrap();
+        console.log("Employee unassigned:", selectedEmployee.id);
+        setSelectedEmployee(null); // Сбрасываем выбранного сотрудника
+        setValue(""); // Очищаем отображаемое значение
+        onSelect(null); // Передаем null, чтобы обновить родительский компонент
+      } catch (error) {
+        console.error("Failed to unassign employee:", error);
+      }
+    } else {
+      console.error("No employee selected to unassign");
+    }
+  };
+
   // Если есть начальный выбранный сотрудник, устанавливаем его в состояние
   useEffect(() => {
     if (initialSelectedEmployee) {
@@ -84,8 +104,38 @@ export const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
     }
   }, [initialSelectedEmployee]);
 
+  const actionButtons = [
+    {
+      id: "assign",
+      action: handleAssign,
+      tooltipText: "Добавить сотрудника",
+      icon: <RiAddLine className="ml-auto min-h-7 min-w-7" />,
+      isEnabled: isEmployeeSelected,
+      disabledText: "Необходимо выбрать сотрудника",
+    },
+    {
+      id: "unassign",
+      action: handleUnassign,
+      tooltipText: "Снять",
+      icon: <RiCloseCircleLine className="ml-auto min-h-7 min-w-7" />,
+      isEnabled: isEmployeeSelected,
+      disabledText: "Необходимо выбрать сотрудника",
+    },
+  ];
+
+  // Если заявка закрыта или отменена, отображаем имя сотрудника текстом
+  if (requestStatus === "CLOSED" || requestStatus === "CANCELLED") {
+    return (
+      <div className="whitespace-nowrap">
+        {selectedEmployee
+          ? selectedEmployee.name
+          : "-"}
+      </div>
+    );
+  }
+
   return (
-    <div className="flex justify-center items-center gap-2">
+    <div className="flex items-center gap-2">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -116,8 +166,8 @@ export const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
                         employees.find((e) => e.name === currentValue) || null;
                       setValue(currentValue === value ? "" : currentValue);
                       setOpen(false);
-                      setSelectedEmployee(selected); // Устанавливаем выбранного сотрудника
-                      onSelect(selected); // Передаем выбранного сотрудника
+                      setSelectedEmployee(selected);
+                      onSelect(selected);
                     }}
                   >
                     {emp.name ?? "No name"}
@@ -134,30 +184,7 @@ export const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
           </Command>
         </PopoverContent>
       </Popover>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger>
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={handleAssign}
-              className={cn(
-                "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 w-10 p-2 hover:bg-green-400 opacity-10 hover:opacity-90",
-                isEmployeeSelected ? "opacity-95" : "hover:bg-red-400"
-              )}
-            >
-              <RiCheckLine className="ml-auto min-h-7 min-w-7" />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>
-            {isEmployeeSelected ? (
-              <p>Назначить</p>
-            ) : (
-              <p>Необходимо выбрать сотрудника</p>
-            )}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <ActionMenu actions={actionButtons} />
     </div>
   );
 };

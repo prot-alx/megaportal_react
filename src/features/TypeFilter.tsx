@@ -38,6 +38,9 @@ export const TypeFilter: React.FC<TypeFilterProps> = ({
   // Логика выбора всех чекбоксов: если длина массивов совпадает, считаем, что выбрано всё
   const selectAll = selectedTypes.length === allTypes.length;
 
+  // Логика для изменения цвета триггера
+  const isPartiallySelected = selectedTypes.length > 0 && !selectAll;
+
   // Подсчёт количества заявок по каждому типу
   const requestCountByType = useMemo(() => {
     return allTypes.reduce((acc, type) => {
@@ -59,9 +62,16 @@ export const TypeFilter: React.FC<TypeFilterProps> = ({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="flex bg-white text-gray-500 w-[150px] hover:bg-slate-300 hover:text-gray-800 cursor-pointer h-10 px-4 py-2 items-center justify-around whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+        <div
+          className={`flex bg-white w-[130px] h-10 px-4 py-2 items-center justify-between whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50
+            ${
+              isPartiallySelected
+                ? "text-gray-100 bg-gray-500"
+                : "text-gray-500 hover:bg-slate-300 hover:text-gray-800"
+            }`}
+        >
           <p>Тип</p>
-          <RiFilterLine size="15px" className="block"/>
+          <RiFilterLine size="15px" className="block" />
         </div>
       </PopoverTrigger>
       <PopoverContent className="p-4 hidden xl:flex xl:flex-col">

@@ -21,17 +21,18 @@ interface RequestTypeSelectorProps {
   requestId: number;
   initialType: RequestType;
   onTypeChange: (id: number, newType: RequestType) => void;
+  requestStatus: string;
 }
 
 export const RequestTypeSelector: React.FC<RequestTypeSelectorProps> = ({
   requestId,
   initialType,
   onTypeChange,
+  requestStatus,
 }) => {
   const [selectedType, setSelectedType] =
     React.useState<RequestType>(initialType);
 
-  // Обновляем состояние, если пропс initialType изменился
   React.useEffect(() => {
     setSelectedType(initialType);
   }, [initialType]);
@@ -44,10 +45,14 @@ export const RequestTypeSelector: React.FC<RequestTypeSelectorProps> = ({
     }
   };
 
+  if (requestStatus === "CLOSED" || requestStatus === "CANCELLED") {
+    return <div>{requestTypeLabels[selectedType] || "-"}</div>;
+  }
+
   return (
     <div>
       <Select value={selectedType} onValueChange={handleSelect}>
-        <SelectTrigger className="w-[150px]">
+        <SelectTrigger className="w-[130px]">
           <SelectValue placeholder="Select Request Type" />
         </SelectTrigger>
         <SelectContent>
