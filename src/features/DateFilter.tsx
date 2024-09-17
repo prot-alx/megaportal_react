@@ -44,7 +44,7 @@ export const DateFilter: React.FC<DateFilterProps> = ({ dateFilterCounts }) => {
           className={`flex bg-white w-[150px] h-10 px-4 py-2 items-center justify-between whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50
             ${
               isPartiallySelected
-                ? "text-gray-100 bg-gray-500"
+                ? "text-gray-100 bg-gray-400"
                 : "text-gray-500 hover:bg-slate-300 hover:text-gray-800"
             }`}
         >

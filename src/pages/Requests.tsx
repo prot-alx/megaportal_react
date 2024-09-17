@@ -1,8 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useGetRequestsQuery, RequestStatus } from "@/app/services/requestApi";
-import { useGetEmployeesQuery, EmployeeRole } from "@/app/services/employeeApi";
-import { LoadingSpinner } from "@/shared/components/ui/preloader";
+import React, { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -10,91 +6,35 @@ import {
   TableRow,
   TableHead,
 } from "@/shared/components/ui/table";
-import { DateFilter } from "@/features/DateFilter";
-import { TypeFilter } from "@/features/TypeFilter";
-import { setRequests } from "@/entities/slices/requestSlice";
-import { RootState, useAppSelector } from "@/app/store/store";
-import {
-  endOfDay,
-  isAfter,
-  isBefore,
-  isToday,
-  parse,
-  startOfDay,
-} from "date-fns";
 import { RiEditLine } from "@remixicon/react";
 import { RequestPagination } from "@/features/RequestPagination";
 import { RequestTableRow } from "@/entities/RequestTableRow";
+import { RequestStatus, useGetRequestsQuery } from "@/app/services/requestApi";
 
-interface UnassignedRequestsProps {
+interface RequestsProps {
   status: RequestStatus;
 }
 
-export const AllRequests: React.FC<UnassignedRequestsProps> = ({ status }) => {
-  const dispatch = useDispatch();
+export const AllRequests: React.FC<RequestsProps> = ({ status }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const {
-    data: employees,
-    isLoading: empIsLoading,
-    error: empError,
-  } = useGetEmployeesQuery({
-    roles: [EmployeeRole.Dispatcher, EmployeeRole.Performer],
-  });
+  const { data, isError, isLoading } = useGetRequestsQuery({ page: currentPage, status });
 
-  const {
-    data: fetchedRequests,
-    isLoading: reqIsLoading,
-    error: reqError,
-  } = useGetRequestsQuery({
-    status,
-    type: useAppSelector((state: RootState) => state.filters.selectedTypes),
-    page: currentPage,
-    limit: itemsPerPage,
-  });
+  if (isLoading) {
+    return <div>Загрузка...</div>;
+  }
 
-  const totalPages = fetchedRequests?.totalPages ?? 0;
+  if (isError) {
+    return <div>Ошибка</div>;
+  }
 
-  const requests = useAppSelector(
-    (state: RootState) => state.requests.requests
-  );
-  const selectedTypes = useAppSelector(
-    (state: RootState) => state.filters.selectedTypes
-  );
-  const selectedDateFilters = useAppSelector(
-    (state: RootState) => state.filters.selectedDateFilters
-  );
-  const dateFilterCounts = useAppSelector(
-    (state: RootState) => state.requests.dateFilterCounts
-  );
+  if (!data) {
+    return <div>Нет данных</div>;
+  }
 
-  useEffect(() => {
-    if (fetchedRequests) {
-      dispatch(setRequests(fetchedRequests));
-    }
-  }, [fetchedRequests, dispatch]);
+  const { requests, totalPages } = data;
 
-  const filteredRequests = useMemo(() => {
-    return requests.filter((request) => {
-      const typeMatch =
-        selectedTypes.length === 0 || selectedTypes.includes(request.type);
-
-      const requestDate = parse(request.request_date, "dd-MM-yyyy", new Date());
-      const dateMatch =
-        selectedDateFilters.includes("all") ||
-        (selectedDateFilters.includes("today") && isToday(requestDate)) ||
-        (selectedDateFilters.includes("past") &&
-          isBefore(requestDate, startOfDay(new Date()))) ||
-        (selectedDateFilters.includes("future") &&
-          isAfter(requestDate, endOfDay(new Date())));
-
-      return typeMatch && dateMatch;
-    });
-  }, [requests, selectedTypes, selectedDateFilters]);
-
-  if (reqIsLoading || empIsLoading) return <LoadingSpinner />;
-  if (reqError || empError) return <p>Error loading requests or employees.</p>;
+  console.log(requests)
 
   return (
     <div>
@@ -102,7 +42,9 @@ export const AllRequests: React.FC<UnassignedRequestsProps> = ({ status }) => {
         <RequestPagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
+          onPageChange={(page) => {
+            setCurrentPage(page);
+          }}
         />
       )}
       <div className="flex justify-between mb-4"></div>
@@ -114,12 +56,8 @@ export const AllRequests: React.FC<UnassignedRequestsProps> = ({ status }) => {
             <TableHead>Описание</TableHead>
             <TableHead>Адрес</TableHead>
             <TableHead>Контакт</TableHead>
-            <TableHead>
-              <DateFilter dateFilterCounts={dateFilterCounts} />
-            </TableHead>
-            <TableHead>
-              <TypeFilter fetchedRequests={fetchedRequests?.data || []} />
-            </TableHead>
+            <TableHead>Дата</TableHead>
+            <TableHead>Тип</TableHead>
             <TableHead>Исполнитель</TableHead>
             <TableHead>Комментарий</TableHead>
             {status !== "CLOSED" && status !== "CANCELLED" && (
@@ -130,14 +68,10 @@ export const AllRequests: React.FC<UnassignedRequestsProps> = ({ status }) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredRequests.map((request) => (
+          {requests.map((request) => (
             <RequestTableRow
-              key={request.id}
-              request={request}
-              employees={employees || []}
-              isChecked={false}
-              onSelect={() => {}}
-              onCheckboxChange={() => {}}
+              key={request.request.id}
+              request={request.request}
             />
           ))}
         </TableBody>

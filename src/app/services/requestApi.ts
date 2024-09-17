@@ -3,6 +3,27 @@ import { baseQuery } from "./_basequery";
 
 export interface Requests {
   id: number;
+  type: RequestType;
+  ep_id: string;
+  client: string;
+  contacts: string;
+  description: string;
+  address: string;
+  comment: string | null;
+  status: RequestStatus;
+  request_date: string;
+  request_updated_at: string;
+  request_created_at: string;
+  hr: {
+    id: number;
+    name: string;
+    role: string;
+    is_active: boolean;
+  };
+}
+
+export interface EditRequest {
+  id: number;
   hr_name?: string;
   ep_id?: string;
   client_id: string;
@@ -53,15 +74,6 @@ export enum RequestStatus {
   POSTPONED = "POSTPONED",
 }
 
-interface FilterParams {
-  status?: RequestStatus;
-  type?: RequestType[];
-  startDate?: string;
-  endDate?: string;
-  page?: number;
-  limit?: number;
-}
-
 interface UpdateRequestTypeParams {
   id: number;
   new_type: RequestType;
@@ -83,10 +95,30 @@ export interface Performer {
   name: string;
 }
 
-interface PaginatedRequests {
-  data: Requests[];
+export interface FilterParams {
+  type?: RequestType;
+  status?: RequestStatus;
+  executor_id?: number;
+  performer_id?: number;
+  request_date_from?: string;
+  request_date_to?: string;
+  updated_at_from?: string;
+  updated_at_to?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface RequestResponse {
   totalPages: number;
-  page: number;
+  currentPage: number;
+  limit: number;
+  total: number;
+  requests: {
+    id: number;
+    request: Requests;
+    executor: Performer | null;
+    performer: Performer | null;
+  }[];
 }
 
 // Функция для преобразования формата даты из гг-мм-дд в дд-мм-гг
@@ -95,46 +127,64 @@ const formatDate = (dateString: string): string => {
   return `${day}-${month}-${year}`;
 };
 
+const buildQueryString = (params: FilterParams): string => {
+  const filteredParams = Object.entries(params).reduce((acc, [key, value]) => {
+    if (value !== undefined) {
+      acc[key] = String(value);
+    }
+    return acc;
+  }, {} as Record<string, string>);
+
+  return new URLSearchParams(filteredParams).toString();
+};
+
 export const requestsApi = createApi({
   reducerPath: "requestsApi",
   baseQuery,
   tagTypes: ["Requests", "Request", "Performers"],
   endpoints: (builder) => ({
-    getRequests: builder.query<PaginatedRequests, FilterParams>({
-      query: ({ status, type, startDate, endDate, page = 1, limit = 10 }) => {
-        const params = new URLSearchParams();
-
-        if (status) params.append("status", status);
-        if (type) params.append("type", type.join(","));
-        if (startDate) params.append("startDate", startDate);
-        if (endDate) params.append("endDate", endDate);
-        if (page) params.append("page", String(page));
-        if (limit) params.append("limit", String(limit));
-
-        const queryString = `requests/filtered${
-          params.toString() ? `?${params.toString()}` : ""
-        }`;
-
-        return queryString;
+    getRequests: builder.query<RequestResponse, FilterParams>({
+      query: (params) => {
+        const queryString = buildQueryString(params);
+        return `request-data/filtered?${queryString}`;
       },
-      transformResponse: (response: PaginatedRequests) => {
+      transformResponse: (response: RequestResponse) => {
         return {
           ...response,
-          data: response.data.map((request) => ({
-            ...request,
-            request_date: formatDate(request.request_date),
+          requests: response.requests.map((requestData) => ({
+            ...requestData,
+            request: {
+              ...requestData.request,
+              request_date: formatDate(requestData.request.request_date),
+              request_updated_at: formatDate(
+                new Date(requestData.request.request_updated_at)
+                  .toISOString()
+                  .split("T")[0]
+              ),
+              request_created_at: formatDate(
+                new Date(requestData.request.request_created_at)
+                  .toISOString()
+                  .split("T")[0]
+              ),
+            },
           })),
         };
       },
-      providesTags: (result) =>
-        result?.data
-          ? [
-              ...result.data.map(
-                ({ id }) => ({ type: "Requests", id } as const)
-              ),
-              { type: "Requests", id: "LIST" },
-            ]
-          : [{ type: "Requests", id: "LIST" }],
+      providesTags: (result, error) => {
+        if (error) {
+          console.error(
+            "Ошибка при получении заявок:",
+            error instanceof Error ? error : new Error(String(error))
+          );
+          return [];
+        }
+
+        if (result) {
+          return [{ type: "Requests", id: "LIST" }];
+        }
+
+        return [];
+      },
     }),
     getRequestById: builder.query<Requests, number>({
       query: (id) => `requests/${id}`,
@@ -215,7 +265,7 @@ export const requestsApi = createApi({
     }),
     createRequest: builder.mutation<Requests, RequestCreate>({
       query: (newRequest) => ({
-        url: "requests",
+        url: "request-data",
         method: "POST",
         data: newRequest,
       }),
@@ -332,31 +382,6 @@ export const requestsApi = createApi({
         return [{ type: "Requests", id: "LIST" }];
       },
     }),
-    getPerformersByRequestId: builder.query<Performer[], number>({
-      query: (requestId) => ({
-        url: `request-data/${requestId}/performers`,
-        method: "GET",
-      }),
-      providesTags: (result, error, requestId) => {
-        if (error) {
-          console.error(
-            "Ошибка при получении исполнителей по заявке:",
-            error instanceof Error ? error : new Error(String(error))
-          );
-          return []; // Не аннулируем теги в случае ошибки
-        }
-
-        // Если запрос успешен, аннулируем кэш для обновления данных исполнителей
-        if (result) {
-          return [
-            { type: "Performers", id: requestId },
-            { type: "Requests", id: requestId },
-          ];
-        }
-
-        return [{ type: "Performers", id: requestId }];
-      },
-    }),
   }),
 });
 
@@ -369,6 +394,5 @@ export const {
   useCancelRequestMutation,
   useUpdateRequestMutation,
   useAssignRequestMutation,
-  useGetPerformersByRequestIdQuery,
   useUnassignRequestMutation,
 } = requestsApi;

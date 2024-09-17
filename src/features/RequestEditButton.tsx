@@ -8,13 +8,14 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { Button } from "@/shared/components/ui/button";
 import { RiEditLine } from "@remixicon/react";
 import { useState, useEffect, forwardRef } from "react";
-import { Requests, useUpdateRequestMutation } from "@/app/services/requestApi";
+import { useUpdateRequestMutation } from "@/app/services/requestApi";
 import { Label } from "@/shared/components/ui/label";
 import { LoadingSpinner } from "@/shared/components/ui/preloader";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { CancelRequestButton } from "@/entities/buttons/CancelRequestButton";
+import { Requests } from "@/entities/slices/requestSlice";
 
 // Определение схемы валидации с помощью zod
 const schema = z.object({
@@ -89,11 +90,11 @@ export const RequestEdit = forwardRef<HTMLDivElement, RequestEditProps>(
 
     useEffect(() => {
       if (isOpen) {
-        setValue("client_id", request.client_id ?? "");
+        setValue("client_id", request.client ?? "");
         setValue("ep_id", request.ep_id ?? "");
         setValue("description", request.description ?? "");
         setValue("address", request.address ?? "");
-        setValue("client_contacts", request.client_contacts ?? "");
+        setValue("client_contacts", request.contacts ?? "");
       }
     }, [isOpen, request, setValue]);
 
