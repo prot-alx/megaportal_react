@@ -42,7 +42,7 @@ export const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState<string>(
-    initialSelectedEmployee?.name ?? ""
+    initialSelectedEmployee?.name ?? "Исполнитель не выбран"
   );
   const [selectedEmployee, setSelectedEmployee] =
     useState<EmployeeSummaryDto | null>(initialSelectedEmployee);
@@ -127,9 +127,7 @@ export const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
   if (requestStatus === "CLOSED" || requestStatus === "CANCELLED") {
     return (
       <div className="whitespace-nowrap">
-        {selectedEmployee
-          ? selectedEmployee.name
-          : "-"}
+        {selectedEmployee ? selectedEmployee.name : "-"}
       </div>
     );
   }
@@ -145,8 +143,11 @@ export const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
             className={`w-[200px] justify-between ${buttonTextColor}`}
           >
             {value
-              ? employees.find((emp) => emp.name === value)?.name ??
-                "Выберите сотрудника..."
+              ? employees.find((emp) => emp.name === value)?.name ?? (
+                  <span className="text-gray-400 opacity-70 font-normal">
+                    Выберите исполнителя
+                  </span>
+                )
               : selectorText}
             <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>

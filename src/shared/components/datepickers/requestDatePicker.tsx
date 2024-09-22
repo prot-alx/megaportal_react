@@ -75,7 +75,7 @@ export const RequestDatePicker: React.FC<DatePickerProps> = ({
           <Button
             variant={"outline"}
             className={cn(
-              "w-[180px] justify-start text-left font-normal",
+              "w-[200px] justify-start text-left font-normal xl:w-[180px]",
               buttonColorClass,
               !someDate && "text-muted-foreground"
             )}

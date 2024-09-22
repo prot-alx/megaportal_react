@@ -79,6 +79,10 @@ interface UpdateRequestTypeParams {
   new_type: RequestType;
 }
 
+interface UpdateRequestComment {
+  comment?: string;
+}
+
 interface UpdateRequestDateParams {
   id: number;
   new_request_date: string;
@@ -96,7 +100,7 @@ export interface Performer {
 }
 
 export interface FilterParams {
-  type?: RequestType;
+  type?: RequestType[];
   status?: RequestStatus;
   executor_id?: number;
   performer_id?: number;
@@ -128,14 +132,22 @@ const formatDate = (dateString: string): string => {
 };
 
 const buildQueryString = (params: FilterParams): string => {
-  const filteredParams = Object.entries(params).reduce((acc, [key, value]) => {
-    if (value !== undefined) {
-      acc[key] = String(value);
-    }
-    return acc;
-  }, {} as Record<string, string>);
+  const query = new URLSearchParams();
 
-  return new URLSearchParams(filteredParams).toString();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined) {
+      if (Array.isArray(value)) {
+        // Преобразование массива в отдельные параметры запроса
+        value.forEach((item) => {
+          query.append(key, String(item)); // Добавляем каждый элемент массива как отдельный параметр
+        });
+      } else {
+        query.append(key, String(value)); // Добавляем одиночное значение
+      }
+    }
+  });
+
+  return query.toString();
 };
 
 export const requestsApi = createApi({
@@ -324,6 +336,34 @@ export const requestsApi = createApi({
         return [{ type: "Requests", id: "LIST" }];
       },
     }),
+    updateRequestComment: builder.mutation<
+      void,
+      { id: number; data: UpdateRequestComment }
+    >({
+      query: ({ id, data }) => ({
+        url: `request-data/${id}/comment`,
+        method: "PATCH",
+        data,
+      }),
+      invalidatesTags: (result, error, { id }) => {
+        if (error) {
+          console.error(
+            "Ошибка при обновлении запроса:",
+            error instanceof Error ? error : new Error(String(error))
+          );
+          return [];
+        }
+
+        if (result) {
+          return [
+            { type: "Requests", id: "LIST" },
+            { type: "Request", id },
+          ];
+        }
+
+        return [{ type: "Requests", id: "LIST" }];
+      },
+    }),
     assignRequest: builder.mutation<void, AssignRequestParams>({
       query: ({ request_id, performer_id }) => ({
         url: "/request-data/assign",
@@ -393,6 +433,7 @@ export const {
   useCreateRequestMutation,
   useCancelRequestMutation,
   useUpdateRequestMutation,
+  useUpdateRequestCommentMutation,
   useAssignRequestMutation,
   useUnassignRequestMutation,
 } = requestsApi;

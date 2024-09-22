@@ -17,14 +17,22 @@ import {
 } from "@/shared/components/ui/tooltip";
 import { useCallback } from "react";
 import { RequestEdit } from "@/features/RequestEditButton";
-
+import { EmployeeSelector } from "@/shared/components/selectors/employeeSelector";
+import { EmployeeSummaryDto } from "@/app/services/employeeApi";
+import { RequestCommentEdit } from "@/features/RequestCommentEditButton";
 
 interface RequestTableRowProps {
   request: Requests;
+  performer: EmployeeSummaryDto | null;
+  employeesList: EmployeeSummaryDto[];
+  onSelect: (employee: EmployeeSummaryDto | null) => void;
 }
 
 export const RequestTableRow: React.FC<RequestTableRowProps> = ({
   request,
+  performer,
+  employeesList,
+  onSelect,
 }) => {
   const [
     updateRequestDate,
@@ -91,23 +99,36 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
         </a>
         <span className="hidden xl:inline">{request.contacts}</span>
       </TableCell>
-      <TableCell className="block xl:table-cell py-2">
-        <span className="xl:hidden font-medium">Дата выезда: </span>
-        {isDateLoading && <LoadingSpinner />}
-        {!isDateLoading && isDateError && (
-          <div className="text-red-500">Ошибка при обновлении даты</div>
-        )}
-        {!isDateLoading && !isDateError && (
-          <RequestDatePicker
-            id={request.id}
-            initialDate={request.request_date}
-            onDateChange={(id, date) =>
-              handleUpdateRequestDate(id, format(date, "yyyy-MM-dd"))
-            }
-            requestStatus={request.status}
-          />
-        )}
-      </TableCell>
+      {request.status !== "CLOSED" && request.status !== "CANCELLED" && (
+        <TableCell className="block xl:table-cell py-2">
+          <span className="xl:hidden font-medium">Дата выезда: </span>
+          {isDateLoading && <LoadingSpinner />}
+          {!isDateLoading && isDateError && (
+            <div className="text-red-500">Ошибка при обновлении даты</div>
+          )}
+          {!isDateLoading && !isDateError && (
+            <RequestDatePicker
+              id={request.id}
+              initialDate={request.request_date}
+              onDateChange={(id, date) =>
+                handleUpdateRequestDate(id, format(date, "yyyy-MM-dd"))
+              }
+              requestStatus={request.status}
+            />
+          )}
+        </TableCell>
+      )}
+      {request.status == "CLOSED" ||
+        (request.status == "CANCELLED" && (
+          <TableCell className="block xl:table-cell py-2">
+            <RequestDatePicker
+              id={request.id}
+              initialDate={request.request_updated_at}
+              onDateChange={() => {}}
+              requestStatus={request.status}
+            />
+          </TableCell>
+        ))}
       <TableCell className="block xl:table-cell py-2">
         <span className="xl:hidden font-medium">Тип: </span>
         {isTypeLoading && <LoadingSpinner />}
@@ -126,29 +147,37 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
       <TableCell className="block xl:table-cell py-2">
         <span className="xl:hidden font-medium">Назначение: </span>
         <div className="flex flex-col gap-3">
-          123
+          <EmployeeSelector
+            employees={employeesList}
+            onSelect={onSelect}
+            selectorText="Выберите исполнителя..."
+            initialSelectedEmployee={
+              performer ? { name: performer.name, id: performer.id } : null
+            }
+            requestID={request.id}
+            requestStatus={request.status}
+          />
         </div>
       </TableCell>
       <TableCell className="block xl:table-cell py-2">
         <span className="xl:hidden font-medium">Комментарий: </span>
-        {request.comment}asdasd ad asas as asas aasas as asdas asd asd asd 2qe
-        12 12e 12e 12
+        {request.comment}
       </TableCell>
-      <TableCell className="block xl:table-cell py-2">
-        {request.status !== "CLOSED" && request.status !== "CANCELLED" && (
-          <span className="xl:hidden font-medium">Редактировать: </span>
-        )}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <RequestEdit request={request} requestStatus={request.status} />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Редактировать</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </TableCell>
+      {request.status !== "CLOSED" && request.status !== "CANCELLED" && (
+        <TableCell className="flex xl:flex xl:flex-col py-2 gap-1">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <RequestEdit request={request} requestStatus={request.status} />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Редактировать</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <RequestCommentEdit request={request} requestStatus={request.status}/>
+        </TableCell>
+      )}
     </TableRow>
   );
 };

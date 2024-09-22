@@ -8,14 +8,13 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { Button } from "@/shared/components/ui/button";
 import { RiEditLine } from "@remixicon/react";
 import { useState, useEffect, forwardRef } from "react";
-import { useUpdateRequestMutation } from "@/app/services/requestApi";
+import { Requests, useUpdateRequestMutation } from "@/app/services/requestApi";
 import { Label } from "@/shared/components/ui/label";
 import { LoadingSpinner } from "@/shared/components/ui/preloader";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { CancelRequestButton } from "@/entities/buttons/CancelRequestButton";
-import { Requests } from "@/entities/slices/requestSlice";
 
 // Определение схемы валидации с помощью zod
 const schema = z.object({
@@ -46,7 +45,6 @@ export const RequestEdit = forwardRef<HTMLDivElement, RequestEditProps>(
   ({ request, requestStatus }, ref) => {
     const [isOpen, setIsOpen] = useState(false);
 
-    // Инициализация useForm с использованием схемы zod
     const {
       control,
       handleSubmit,

@@ -9,11 +9,12 @@ const Header: React.FC = () => {
   const onLogoutClick = () => AuthService.logout();
 
   const userName = useAppSelector((state) => state.auth?.user_name);
+  const userRole = useAppSelector((state) => state.auth?.user_role);
   
   return (
     <div className="flex justify-between gap-10 items-center">
       <div>
-        <span>{userName}</span>
+        <span>{userName}-{userRole}</span>
       </div>
       <RequestCreation />
       <MenuList items={topmenu.items} />

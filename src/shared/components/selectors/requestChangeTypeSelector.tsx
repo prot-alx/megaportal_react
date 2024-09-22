@@ -52,7 +52,7 @@ export const RequestTypeSelector: React.FC<RequestTypeSelectorProps> = ({
   return (
     <div>
       <Select value={selectedType} onValueChange={handleSelect}>
-        <SelectTrigger className="w-[130px]">
+        <SelectTrigger className="w-[200px] xl:w-[130px]">
           <SelectValue placeholder="Select Request Type" />
         </SelectTrigger>
         <SelectContent>
