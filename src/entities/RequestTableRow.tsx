@@ -20,6 +20,7 @@ import { RequestEdit } from "@/features/RequestEditButton";
 import { EmployeeSelector } from "@/shared/components/selectors/employeeSelector";
 import { EmployeeSummaryDto } from "@/app/services/employeeApi";
 import { RequestCommentEdit } from "@/features/RequestCommentEditButton";
+import { TableCellCutted } from "@/features/TableCellCutted";
 
 interface RequestTableRowProps {
   request: Requests;
@@ -74,19 +75,19 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
   return (
     <TableRow
       key={request.id}
-      className="block xl:table-row border-y-2 border-gray-300 group"
+      className="block xl:table-row border-y-2 border-gray-300 group w-full"
     >
       <TableCell className="block xl:table-cell py-2">
         <span className="xl:hidden font-medium">Абонент: </span>
-        {request.client}
+        {request.client} - {request.id}
       </TableCell>
       <TableCell className="block xl:table-cell py-2">
         <span className="xl:hidden font-medium">ЕП: </span>
         {request.ep_id}
       </TableCell>
-      <TableCell className="block xl:table-cell py-2">
+      <TableCell className="block xl:table-cell py-2 max-w-[500px]">
         <span className="xl:hidden font-medium">Описание: </span>
-        {request.description}
+        <TableCellCutted text={request.description} />
       </TableCell>
       <TableCell className="block xl:table-cell py-2">
         <span className="xl:hidden font-medium">Адрес: </span>
@@ -99,7 +100,23 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
         </a>
         <span className="hidden xl:inline">{request.contacts}</span>
       </TableCell>
-      {request.status !== "CLOSED" && request.status !== "CANCELLED" && (
+      {request.status === "CLOSED" || request.status === "CANCELLED" ? (
+        <TableCell className="block xl:table-cell py-2">
+          <span className="xl:hidden font-medium">Дата обновления: </span>
+          {isDateLoading && <LoadingSpinner />}
+          {!isDateLoading && isDateError && (
+            <div className="text-red-500">Ошибка при обновлении даты</div>
+          )}
+          {!isDateLoading && !isDateError && (
+            <RequestDatePicker
+              id={request.id}
+              initialDate={request.request_updated_at} // Используем updated_at
+              onDateChange={() => {}}
+              requestStatus={request.status}
+            />
+          )}
+        </TableCell>
+      ) : (
         <TableCell className="block xl:table-cell py-2">
           <span className="xl:hidden font-medium">Дата выезда: </span>
           {isDateLoading && <LoadingSpinner />}
@@ -109,7 +126,7 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
           {!isDateLoading && !isDateError && (
             <RequestDatePicker
               id={request.id}
-              initialDate={request.request_date}
+              initialDate={request.request_date} // Используем request_date
               onDateChange={(id, date) =>
                 handleUpdateRequestDate(id, format(date, "yyyy-MM-dd"))
               }
@@ -118,17 +135,6 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
           )}
         </TableCell>
       )}
-      {request.status == "CLOSED" ||
-        (request.status == "CANCELLED" && (
-          <TableCell className="block xl:table-cell py-2">
-            <RequestDatePicker
-              id={request.id}
-              initialDate={request.request_updated_at}
-              onDateChange={() => {}}
-              requestStatus={request.status}
-            />
-          </TableCell>
-        ))}
       <TableCell className="block xl:table-cell py-2">
         <span className="xl:hidden font-medium">Тип: </span>
         {isTypeLoading && <LoadingSpinner />}
@@ -159,9 +165,9 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
           />
         </div>
       </TableCell>
-      <TableCell className="block xl:table-cell py-2">
+      <TableCell className="block xl:table-cell py-2 max-w-[500px]">
         <span className="xl:hidden font-medium">Комментарий: </span>
-        {request.comment}
+        <TableCellCutted text={request.comment} />
       </TableCell>
       {request.status !== "CLOSED" && request.status !== "CANCELLED" && (
         <TableCell className="flex xl:flex xl:flex-col py-2 gap-1">
@@ -175,7 +181,11 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <RequestCommentEdit request={request} requestStatus={request.status}/>
+          <RequestCommentEdit
+            request={request}
+            requestStatus={request.status}
+            performer={performer}
+          />
         </TableCell>
       )}
     </TableRow>

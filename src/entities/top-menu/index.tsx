@@ -10,16 +10,18 @@ interface MenuListItem {
 
 interface MenuListProps {
   items: MenuListItem[];
+  onItemClick?: () => void;
 }
 
-export const MenuList: FC<MenuListProps> = ({ items }) => {
+export const MenuList: FC<MenuListProps> = ({ items, onItemClick }) => {
   return (
     <div className="flex justify-center">
-      <ul className="flex gap-2">
+      <ul className="flex flex-col gap-2 xl:flex-row">
         {items.map((item) => (
-          <li className="flex justify-center min-w-36" key={item.id}>
+          <li className="flex justify-center " key={item.id}>
             <NavLink
               to={item.link}
+              onClick={onItemClick}
               className={({ isActive }) =>
                 cn(
                   "px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 align-middle",

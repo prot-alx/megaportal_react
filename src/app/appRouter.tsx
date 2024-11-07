@@ -26,32 +26,36 @@ export const appRouter = createBrowserRouter([
           },
           {
             path: "/unassigned",
-            element: <AllRequests status={RequestStatus.NEW}/>,
+            element: <AllRequests status={[RequestStatus.NEW]} />,
             errorElement: <div>404</div>,
           },
           {
             path: "/assigned",
-            element: <AllRequests status={RequestStatus.IN_PROGRESS}/>,
+            element: <AllRequests status={[RequestStatus.IN_PROGRESS]} />,
             errorElement: <div>404</div>,
           },
           {
             path: "/completed",
-            element: <AllRequests status={RequestStatus.SUCCESS}/>,
+            element: <AllRequests status={[RequestStatus.SUCCESS]} />,
             errorElement: <div>404</div>,
           },
           {
             path: "/monitoring",
-            element: <AllRequests status={RequestStatus.MONITORING}/>,
+            element: <AllRequests status={[RequestStatus.MONITORING]} />,
             errorElement: <div>404</div>,
           },
           {
             path: "/postponed",
-            element: <AllRequests status={RequestStatus.POSTPONED}/>,
+            element: <AllRequests status={[RequestStatus.POSTPONED]} />,
             errorElement: <div>404</div>,
           },
           {
             path: "/history",
-            element: <div><AllRequests status={RequestStatus.CANCELLED}/></div>,
+            element: (
+              <AllRequests
+                status={[RequestStatus.CLOSED, RequestStatus.CANCELLED]}
+              />
+            ), // Обратите внимание на массив
             errorElement: <div>404</div>,
           },
           {

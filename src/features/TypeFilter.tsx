@@ -11,6 +11,15 @@ interface RequestTypeFilterProps {
   onTypeChange: (type: RequestType) => void;
 }
 
+const requestTypeLabels: Record<RequestType, string> = {
+  [RequestType.Default]: "Обычный",
+  [RequestType.VIP]: "VIP",
+  [RequestType.Video]: "Видео",
+  [RequestType.Optical]: "Оптика/НОБ",
+  [RequestType.Other]: "Служебка",
+};
+
+
 const RequestTypeFilter: React.FC<RequestTypeFilterProps> = ({
   selectedTypes,
   onTypeChange,
@@ -31,7 +40,7 @@ const RequestTypeFilter: React.FC<RequestTypeFilterProps> = ({
         Типы
       </DropdownMenuTrigger>
       {isOpen && (
-        <DropdownMenuContent className="w-28 p-2">
+        <DropdownMenuContent className="w-40 p-2">
           {requestTypes.map((type) => (
             <div key={type}>
               <label className="flex items-center space-x-2">
@@ -40,7 +49,7 @@ const RequestTypeFilter: React.FC<RequestTypeFilterProps> = ({
                   checked={selectedTypes.includes(type)}
                   onChange={() => handleCheckboxChange(type)}
                 />
-                <span>{type}</span>
+                <span>{requestTypeLabels[type]}</span>
               </label>
             </div>
           ))}

@@ -101,7 +101,7 @@ export interface Performer {
 
 export interface FilterParams {
   type?: RequestType[];
-  status?: RequestStatus;
+  status?: RequestStatus[];
   executor_id?: number;
   performer_id?: number;
   request_date_from?: string;

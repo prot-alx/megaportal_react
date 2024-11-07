@@ -64,6 +64,7 @@ export const CancelRequestButton: React.FC<CancelRequestButtonProps> = ({
           <TooltipTrigger asChild>
             {!isCancelLoading && !isCancelError && (
               <Button
+                className="w-[110px]"
                 type="button"
                 variant="destructive"
                 onClick={openAlert}
@@ -74,7 +75,7 @@ export const CancelRequestButton: React.FC<CancelRequestButtonProps> = ({
                   }
                 }}
               >
-                Отказ/Закрытие
+                Отказ
               </Button>
             )}
           </TooltipTrigger>

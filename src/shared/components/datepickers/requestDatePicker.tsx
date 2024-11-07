@@ -57,7 +57,6 @@ export const RequestDatePicker: React.FC<DatePickerProps> = ({
 
   const buttonColorClass = getButtonColorClass(someDate);
 
-  // Если статус закрыт или отменен, выводим строковое представление даты
   if (requestStatus === "CLOSED" || requestStatus === "CANCELLED") {
     return (
       <div className="text-gray-800">

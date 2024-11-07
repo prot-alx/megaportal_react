@@ -19,7 +19,7 @@ import { LoadingSpinner } from "@/shared/components/ui/preloader";
 import RequestTypeFilter from "@/features/TypeFilter";
 
 interface RequestsProps {
-  status: RequestStatus;
+  status: RequestStatus[];
 }
 
 export const AllRequests: React.FC<RequestsProps> = ({ status }) => {
@@ -73,35 +73,36 @@ export const AllRequests: React.FC<RequestsProps> = ({ status }) => {
 
   const { requests, totalPages } = data;
 
+  // Проверяем, содержатся ли "CLOSED" или "CANCELLED" в массиве статусов
+  const isClosedOrCancelled =
+    status.includes(RequestStatus.CLOSED) ||
+    status.includes(RequestStatus.CANCELLED);
+
   return (
     <div>
-      {totalPages > 1 && (
-        <RequestPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => {
-            setCurrentPage(page);
-          }}
-        />
-      )}
+      <RequestPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={(page) => {
+          setCurrentPage(page);
+        }}
+      />
+
       <div className="flex justify-between mb-4"></div>
       <Table className="min-w-full bg-white">
         <TableHeader className="hidden xl:table-header-group">
           <TableRow>
             <TableHead>Абонент</TableHead>
             <TableHead>Номер ЕП</TableHead>
-            <TableHead>Описание</TableHead>
+            <TableHead className="min-w-[250px]">Описание</TableHead>
             <TableHead>Адрес</TableHead>
             <TableHead>Контакт</TableHead>
-            {status !== "CLOSED" && status !== "CANCELLED" && (
-              <TableHead>Дата выезда</TableHead>
+            {!isClosedOrCancelled && <TableHead>Дата выезда</TableHead>}
+            {isClosedOrCancelled && (
+              <TableHead className="flex items-center justify-center">
+                Дата закрытия
+              </TableHead>
             )}
-            {status === "CLOSED" ||
-              (status === "CANCELLED" && (
-                <TableHead className="flex items-center justify-center">
-                  Дата закрытия
-                </TableHead>
-              ))}
             <TableHead>
               <RequestTypeFilter
                 selectedTypes={selectedTypes}
@@ -109,8 +110,8 @@ export const AllRequests: React.FC<RequestsProps> = ({ status }) => {
               />
             </TableHead>
             <TableHead>Исполнитель</TableHead>
-            <TableHead>Комментарий</TableHead>
-            {status !== "CLOSED" && status !== "CANCELLED" && (
+            <TableHead className="min-w-[250px]">Комментарий</TableHead>
+            {!isClosedOrCancelled && (
               <TableHead className="flex items-center justify-center opacity-60">
                 <RiEditLine size="25px" color="black" />
               </TableHead>

@@ -173,9 +173,12 @@ export const RequestCreation: React.FC = () => {
     <div>
       <Button onClick={openModal}>Создать заявку</Button>
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-        <DialogContent aria-describedby="">
+        <DialogContent
+          aria-describedby=""
+          className="w-[300px] xl:w-[500px] max-h-[80vh] sm:max-h-[100vh] overflow-y-auto"
+        >
           <DialogTitle></DialogTitle>
-          <Card className="w-[450px]">
+          <Card className="">
             <CardHeader>
               <CardTitle>Создание заявки</CardTitle>
               <CardDescription>Заполните данные.</CardDescription>
@@ -305,7 +308,7 @@ export const RequestCreation: React.FC = () => {
                     </div>
                   )}
                 />
-                <div className="flex gap-8 justify-between">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col space-y-1.5 relative">
                     <p className="text-sm font-medium pb-4">Дата</p>
                     <BaseDatePicker
@@ -321,7 +324,7 @@ export const RequestCreation: React.FC = () => {
                       }}
                     />
                   </div>
-                  <div>
+                  <div className="flex flex-col space-y-1.5 relative">
                     <p className="text-sm font-medium pb-4">Тип</p>
                     <RequestTypeSelectorNoId
                       initialType={requestType}
