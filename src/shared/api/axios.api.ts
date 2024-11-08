@@ -2,8 +2,10 @@ import { AuthService } from "@/app/store/auth/auth.service";
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  //baseURL: "http://localhost:3333",
-  baseURL: "http://testportal.ddns.net:3333",
+  baseURL:
+    window.location.hostname === "localhost" || window.location.hostname.startsWith("192.168.")
+      ? "http://192.168.1.132:3333"
+      : "http://testportal.ddns.net:3333",
   timeout: 15000,
 });
 

@@ -16,9 +16,9 @@ interface MenuListProps {
 export const MenuList: FC<MenuListProps> = ({ items, onItemClick }) => {
   return (
     <div className="flex justify-center">
-      <ul className="flex flex-col gap-2 xl:flex-row">
+      <ul className="flex flex-col gap-2 items-start xl:flex-row xl:items-center">
         {items.map((item) => (
-          <li className="flex justify-center " key={item.id}>
+          <li className="flex justify-center" key={item.id}>
             <NavLink
               to={item.link}
               onClick={onItemClick}
