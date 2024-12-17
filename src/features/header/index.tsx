@@ -1,11 +1,11 @@
-import { Button } from "@/shared/components/ui/button";
-import { MenuList } from "../../entities/top-menu";
-import { topmenu } from "./model";
 import { AuthService } from "@/app/store/auth/auth.service";
 import { useAppSelector } from "@/app/store/store";
-import { RequestCreation } from "@/features/RequestCreation";
 import { useState } from "react";
-import { RiCloseFill, RiMenu2Fill, } from "@remixicon/react";
+import { MenuList } from "../../entities/top-menu";
+import { topmenu } from "./model";
+import { RiCloseFill, RiMenu2Fill } from "@remixicon/react";
+import { RequestCreation } from "..";
+import { Button } from "@/shared/components";
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -19,7 +19,9 @@ const Header: React.FC = () => {
   return (
     <div className="flex justify-between gap-10 items-center">
       <div className="hidden xl:block">
-        <span>{userName} - {userRole}</span>
+        <span>
+          {userName} - {userRole}
+        </span>
       </div>
       <RequestCreation />
 

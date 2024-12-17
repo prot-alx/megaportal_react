@@ -5,7 +5,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/shared/components/ui/card";
+} from "@/shared/components";
 import { Separator } from "@radix-ui/react-select";
 
 const AuthPage: FC = () => {

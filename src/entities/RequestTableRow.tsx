@@ -4,23 +4,22 @@ import {
   useUpdateRequestDateMutation,
   useUpdateRequestTypeMutation,
 } from "@/app/services/requestApi";
-import { RequestDatePicker } from "@/shared/components/datepickers/requestDatePicker";
-import { RequestTypeSelector } from "@/shared/components/selectors/requestChangeTypeSelector";
-import { LoadingSpinner } from "@/shared/components/ui/preloader";
-import { TableCell, TableRow } from "@/shared/components/ui/table";
+import { EmployeeSummaryDto } from "@/app/services/employeeApi";
+import { useCallback } from "react";
 import { format } from "date-fns";
 import {
+  TableRow,
+  TableCell,
+  LoadingSpinner,
+  RequestDatePicker,
+  RequestTypeSelector,
+  EmployeeSelector,
+  TooltipProvider,
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
-} from "@/shared/components/ui/tooltip";
-import { useCallback } from "react";
-import { RequestEdit } from "@/features/RequestEditButton";
-import { EmployeeSelector } from "@/shared/components/selectors/employeeSelector";
-import { EmployeeSummaryDto } from "@/app/services/employeeApi";
-import { RequestCommentEdit } from "@/features/RequestCommentEditButton";
-import { TableCellCutted } from "@/features/TableCellCutted";
+} from "@/shared/components";
+import { TableCellCutted, RequestEdit, RequestCommentEdit } from "@/features";
 
 interface RequestTableRowProps {
   request: Requests;

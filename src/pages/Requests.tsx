@@ -1,22 +1,22 @@
 import React, { useState } from "react";
 import {
-  Table,
-  TableBody,
-  TableHeader,
-  TableRow,
-  TableHead,
-} from "@/shared/components/ui/table";
-import { RiEditLine } from "@remixicon/react";
-import { RequestPagination } from "@/features/RequestPagination";
-import { RequestTableRow } from "@/entities/RequestTableRow";
-import {
   RequestStatus,
   RequestType,
   useGetRequestsQuery,
 } from "@/app/services/requestApi";
+import { RiEditLine } from "@remixicon/react";
 import { EmployeeRole, useGetEmployeesQuery } from "@/app/services/employeeApi";
-import { LoadingSpinner } from "@/shared/components/ui/preloader";
+import { RequestTableRow } from "@/entities/RequestTableRow";
+import { RequestPagination } from "@/features";
 import RequestTypeFilter from "@/features/TypeFilter";
+import {
+  LoadingSpinner,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  Table,
+} from "@/shared/components";
 
 interface RequestsProps {
   status: RequestStatus[];

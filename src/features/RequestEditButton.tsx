@@ -1,19 +1,19 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/shared/components/ui/dialog";
-import { Input } from "@/shared/components/ui/input";
-import { Textarea } from "@/shared/components/ui/textarea";
-import { Button } from "@/shared/components/ui/button";
-import { RiEditLine } from "@remixicon/react";
 import { useState, useEffect, forwardRef } from "react";
+import { RiEditLine } from "@remixicon/react";
 import { Requests, useUpdateRequestMutation } from "@/app/services/requestApi";
-import { Label } from "@/shared/components/ui/label";
-import { LoadingSpinner } from "@/shared/components/ui/preloader";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Input,
+  Label,
+  LoadingSpinner,
+  Textarea,
+} from "@/shared/components";
 import { CancelRequestButton } from "@/entities/buttons/CancelRequestButton";
 
 // Определение схемы валидации с помощью zod

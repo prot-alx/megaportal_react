@@ -1,26 +1,24 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/shared/components/ui/dialog";
-import { Textarea } from "@/shared/components/ui/textarea";
-import { Button } from "@/shared/components/ui/button";
-import { RiAddBoxFill } from "@remixicon/react";
 import { useState, useEffect, forwardRef } from "react";
 import {
   Requests,
   RequestStatus,
   useUpdateRequestCommentMutation,
 } from "@/app/services/requestApi";
-import { LoadingSpinner } from "@/shared/components/ui/preloader";
 import { useForm, Controller } from "react-hook-form";
+import { RiAddBoxFill } from "@remixicon/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { EmployeeSummaryDto } from "@/app/services/employeeApi";
 import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  LoadingSpinner,
+  Textarea,
   ToggleGroup,
   ToggleGroupItem,
-} from "@/shared/components/ui/toggle-group";
-import { EmployeeSummaryDto } from "@/app/services/employeeApi";
+} from "@/shared/components";
 
 const schema = z.object({
   comment: z
@@ -120,9 +118,13 @@ export const RequestCommentEdit = forwardRef<HTMLDivElement, RequestEditProps>(
         </Button>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogContent aria-describedby="">
-            <DialogTitle>Добавление комментария к заявке {request.client}</DialogTitle>
+            <DialogTitle>
+              Добавление комментария к заявке {request.client}
+            </DialogTitle>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <span className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 w-full h-[30px]">Текущий статус заявки: {statusTranslations[request.status]}</span>
+              <span className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 w-full h-[30px]">
+                Текущий статус заявки: {statusTranslations[request.status]}
+              </span>
               <Controller
                 name="comment"
                 control={control}

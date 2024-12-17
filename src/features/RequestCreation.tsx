@@ -3,22 +3,11 @@ import {
   useCreateRequestMutation,
   RequestType,
 } from "@/app/services/requestApi";
-import { BaseDatePicker } from "@/shared/components/datepickers/basicDatePicker";
-import { Button } from "@/shared/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Textarea } from "@/shared/components/ui/textarea";
-import { RequestTypeSelectorNoId } from "@/shared/components/selectors/requestTypeSelector";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { Dialog, DialogContent } from "@/shared/components/ui/dialog";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,11 +17,21 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/shared/components/ui/alert-dialog";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { DialogTitle } from "@radix-ui/react-dialog";
+  BaseDatePicker,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Input,
+  Label,
+  RequestTypeSelectorNoId,
+  Textarea,
+} from "@/shared/components";
 
 const schema = z.object({
   clientNumber: z

@@ -5,7 +5,7 @@ import {
   PaginationPrevious,
   PaginationLink,
   PaginationNext,
-} from "@/shared/components/ui/pagination";
+} from "@/shared/components";
 import { cn } from "@/shared/utils";
 
 export const RequestPagination: React.FC<{

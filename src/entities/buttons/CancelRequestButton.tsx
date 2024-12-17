@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useCancelRequestMutation } from "@/app/services/requestApi";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -8,15 +9,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/shared/components/ui/alert-dialog";
-import {
+  Button,
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/shared/components/ui/tooltip";
-import { useCancelRequestMutation } from "@/app/services/requestApi";
-import { Button } from "@/shared/components/ui/button";
+} from "@/shared/components";
 
 interface CancelRequestButtonProps {
   requestId: number;

@@ -1,11 +1,11 @@
-import React from "react";
 import {
+  Button,
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/shared/components/ui/tooltip";
-import { Button } from "@/shared/components/ui/button";
+} from "@/shared/components";
+import React from "react";
 
 interface ActionButtonProps {
   id: string;

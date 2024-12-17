@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Button } from "@/shared/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/shared/components/ui/popover";
-import ActionButton from "@/entities/buttons/ActionButton";
 import { RiSettings2Line } from "@remixicon/react";
+import { Button } from "@/shared/components";
+import ActionButton from "@/entities/buttons/ActionButton";
 
 interface ActionMenuProps {
   actions: {

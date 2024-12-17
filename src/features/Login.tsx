@@ -1,25 +1,10 @@
 import React, { useEffect, useCallback, useState } from "react";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
 import { useAppSelector, useAppDispatch } from "@/app/store/store";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Form } from "react-router-dom";
 import { loginAsync, clearError } from "@/app/store/auth/authSlice";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/shared/components/ui/alert";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/shared/components/ui/form";
 import { cn } from "@/shared/utils";
 import {
   RiEyeLine,
@@ -27,6 +12,18 @@ import {
   RiLockFill,
   RiUserLine,
 } from "@remixicon/react";
+import {
+  Button,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  Input,
+  FormMessage,
+  Alert,
+  AlertTitle,
+  AlertDescription,
+} from "@/shared/components";
 
 const schema = z.object({
   login: z.string().min(1, "Поле обязательно"),

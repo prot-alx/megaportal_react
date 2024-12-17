@@ -1,4 +1,3 @@
-// App.tsx
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store";
 import { appRouter } from "@/app/appRouter";
