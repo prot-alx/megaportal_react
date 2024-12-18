@@ -3,7 +3,8 @@ import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
 import "./index.css";
-import { App } from "./store/auth/App";
+import { App } from "./store/auth/app";
+
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

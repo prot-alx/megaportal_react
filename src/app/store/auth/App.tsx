@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store";
-import { appRouter } from "@/app/appRouter";
-import { checkAuth } from "./checkAuth";
+import { appRouter } from "@/app/app-router";
+import { checkAuth } from "./auth-check";
 import { RouterProvider } from "react-router-dom";
 
 export const App = () => {
