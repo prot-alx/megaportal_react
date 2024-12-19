@@ -21,7 +21,7 @@ interface RequestsProps {
   status: RequestStatus[];
 }
 
-export const AllRequests: React.FC<RequestsProps> = ({ status }) => {
+export const AllRequests: React.FC<RequestsProps> = ({ status }: { status: RequestStatus[] }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTypes, setSelectedTypes] = useState<RequestType[]>([]);
 

@@ -10,7 +10,9 @@ export const baseQuery: BaseQueryFn<
   try {
     let result;
     if (typeof args === "string") {
-      result = await axiosInstance.get(args);
+      result = await axiosInstance.get(args, {
+        withCredentials: true, // добавляем для строковых запросов
+      });
     } else {
       const { url, method, data, headers } = args;
       const config: AxiosRequestConfig = {
@@ -21,12 +23,19 @@ export const baseQuery: BaseQueryFn<
           "Content-Type": "application/json",
         },
         data,
+        withCredentials: true, // добавляем для объектных запросов
       };
       result = await axiosInstance(config);
     }
     return { data: result.data };
   } catch (axiosError) {
     const err = axiosError as AxiosError;
+
+    // Добавляем обработку 401 ошибки
+    if (err.response?.status === 401) {
+      // Можно добавить редирект на логин или обновление токена
+      window.location.href = "/login";
+    }
 
     return {
       error: {

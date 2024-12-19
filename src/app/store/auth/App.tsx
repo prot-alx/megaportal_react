@@ -1,28 +1,42 @@
 import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../store";
 import { appRouter } from "@/app/app-router";
 import { checkAuth } from "./auth-check";
 import { RouterProvider } from "react-router-dom";
 
 export const App = () => {
-  const dispatch = useAppDispatch();
-  const [isAuthChecked, setIsAuthChecked] = useState(false);
-  const { isLoading } = useAppSelector((state) => state.auth);
+  const [isInitialAuthChecked, setIsInitialAuthChecked] = useState(false);
 
   useEffect(() => {
-    const authenticate = async () => {
-      try {
-        await checkAuth();
-      } finally {
-        setIsAuthChecked(true);
+    let mounted = true;
+
+    const init = async () => {
+      if (!isInitialAuthChecked) {
+        try {
+          // Если мы уже на странице логина, не делаем проверку
+          if (window.location.pathname === '/login') {
+            setIsInitialAuthChecked(true);
+            return;
+          }
+          
+          await checkAuth();
+        } finally {
+          if (mounted) {
+            setIsInitialAuthChecked(true);
+          }
+        }
       }
     };
 
-    authenticate();
-  }, [dispatch]);
+    init();
 
-  if (isLoading || !isAuthChecked) {
-    return <div></div>;
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Показываем loader только при первой проверке
+  if (!isInitialAuthChecked) {
+    return <div>Loading...</div>;
   }
 
   return <RouterProvider router={appRouter} />;

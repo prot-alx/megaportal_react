@@ -1,4 +1,5 @@
 export interface IUser {
+  message: string;
   id: number;
   login: string;
   access_token: string;
@@ -17,4 +18,8 @@ export interface IUserMe {
   login: string;
   name: string;
   role: string;
+}
+
+export interface IUserMeResponse {
+  user: IUserMe;
 }

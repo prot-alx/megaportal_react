@@ -2,19 +2,21 @@ import { AuthService } from "@/app/store/auth/auth.service";
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL:
-    window.location.hostname === "localhost" || window.location.hostname.startsWith("192.168.")
-      ? "http://192.168.1.132:3333"
-      : "http://testportal.ddns.net:3333",
+  baseURL: "/api",
   timeout: 15000,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
+// Оставляем только один интерцептор для логирования
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    }
+    console.log("Request config:", {
+      url: config.url,
+      method: config.method,
+    });
     return config;
   },
   (error) => {
@@ -29,46 +31,31 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Проверяем, что:
+    // 1. Это 401 ошибка
+    // 2. У запроса еще не было попытки обновления
+    // 3. Это не сам запрос на обновление токена
+    if (
+      error.response?.status === 401 && 
+      !originalRequest._retry &&
+      originalRequest.url !== 'auth/refresh'  // Важное условие!
+    ) {
+      console.log('Attempting to refresh token...');
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem("refresh_token");
-
-        // Если нет refresh токена или он истек, выполнить логаут
-        if (!refreshToken || AuthService.isTokenExpired(refreshToken)) {
-          AuthService.logout();
-          return Promise.reject(
-            new Error("Refresh token expired. Logging out...")
-          );
-        }
-
-        // Попробовать обновить токен
-        const refreshedData = await AuthService.refreshToken();
-        if (refreshedData) {
-          localStorage.setItem("access_token", refreshedData.access_token);
-          localStorage.setItem("refresh_token", refreshedData.refresh_token);
-
-          axiosInstance.defaults.headers.common[
-            "Authorization"
-          ] = `Bearer ${refreshedData.access_token}`;
-          originalRequest.headers[
-            "Authorization"
-          ] = `Bearer ${refreshedData.access_token}`;
-
-          return axiosInstance(originalRequest);
-        }
-      } catch (err) {
+        await AuthService.refreshToken();
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        // Если не удалось обновить токен - делаем логаут
+        console.error('Token refresh failed:', refreshError);
         AuthService.logout();
-        return Promise.reject(
-          err instanceof Error ? err : new Error(String(err))
-        );
+        return Promise.reject(refreshError);
       }
     }
 
-    return Promise.reject(
-      error instanceof Error ? error : new Error(String(error))
-    );
+    // Для всех остальных ошибок или если refresh token тоже протух
+    return Promise.reject(error);
   }
 );
 
