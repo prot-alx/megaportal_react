@@ -6,7 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared";
-import { RequestType } from "@/app/services/requestApi";
+import { RequestType } from "@/app/services/types/request.types";
 
 const requestTypeLabels: Record<RequestType, string> = {
   [RequestType.Default]: "Обычный",

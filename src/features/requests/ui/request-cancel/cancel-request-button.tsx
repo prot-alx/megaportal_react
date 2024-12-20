@@ -14,7 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/shared";
-import { useCancelRequestMutation } from "@/app/services/requestApi";
+import { useCancelRequestMutation } from "@/app/services/request.api";
 
 interface CancelRequestButtonProps {
   requestId: number;

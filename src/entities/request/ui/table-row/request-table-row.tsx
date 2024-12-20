@@ -1,12 +1,9 @@
 import {
-  Requests,
-  RequestType,
   useUpdateRequestDateMutation,
   useUpdateRequestTypeMutation,
-} from "@/app/services/requestApi";
+} from "@/app/services/request.api";
 import { format } from "date-fns";
 import { useCallback } from "react";
-import { EmployeeSummaryDto } from "@/app/services/employeeApi";
 import {
   LoadingSpinner,
   TableCell,
@@ -24,6 +21,8 @@ import {
   RequestEdit,
   RequestCommentEdit,
 } from "@/features";
+import { Requests, RequestType } from "@/app/services/types/request.types";
+import { EmployeeSummaryDto } from "@/app/services/types/employee.types";
 
 interface RequestTableRowProps {
   request: Requests;

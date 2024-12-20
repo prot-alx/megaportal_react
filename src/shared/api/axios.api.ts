@@ -10,7 +10,6 @@ const axiosInstance = axios.create({
   },
 });
 
-// Оставляем только один интерцептор для логирования
 axiosInstance.interceptors.request.use(
   (config) => {
     console.log("Request config:", {
@@ -36,11 +35,11 @@ axiosInstance.interceptors.response.use(
     // 2. У запроса еще не было попытки обновления
     // 3. Это не сам запрос на обновление токена
     if (
-      error.response?.status === 401 && 
+      error.response?.status === 401 &&
       !originalRequest._retry &&
-      originalRequest.url !== 'auth/refresh'  // Важное условие!
+      originalRequest.url !== "auth/refresh"
     ) {
-      console.log('Attempting to refresh token...');
+      console.log("Attempting to refresh token...");
       originalRequest._retry = true;
 
       try {
@@ -48,7 +47,7 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         // Если не удалось обновить токен - делаем логаут
-        console.error('Token refresh failed:', refreshError);
+        console.error("Token refresh failed:", refreshError);
         AuthService.logout();
         return Promise.reject(refreshError);
       }

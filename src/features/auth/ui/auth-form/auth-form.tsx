@@ -1,83 +1,41 @@
-import React, { useEffect, useCallback, useState } from "react";
-import {   
-  Alert,
-  AlertDescription,
-  AlertTitle,
-  Button,
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input
-} from "@/shared/components";
-import { useAppSelector, useAppDispatch } from "@/app/store/store";
-import { useNavigate, useLocation } from "react-router-dom";
-import { loginAsync, clearError } from "@/app/store/auth/auth-slice";
+import { useEffect, useCallback } from "react";
+import { Form, FormField, Button } from "@/shared/components";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { cn } from "@/shared/utils";
-import {
-  RiEyeLine,
-  RiEyeOffLine,
-  RiLockFill,
-  RiUserLine,
-} from "@remixicon/react";
+import { useAppSelector, useAppDispatch } from "@/app/store/store";
+import { loginAsync } from "@/app/store/auth/auth.thunks";
+import { clearError } from "@/app/store/auth/auth.slice";
+import { PasswordField } from "../auth-form-fields/password-field";
+import { AuthFormData, authFormSchema } from "../../lib/schemas";
+import { useAuthRedirect } from "../../lib/hooks/useAuthRedirect";
+import { AuthErrorMessage } from "../auth-error";
+import { LoginField } from "../auth-form-fields/login-field";
 
-const schema = z.object({
-  login: z.string().min(1, "Поле обязательно"),
-  password: z.string().min(1, "Поле обязательно"),
-});
+export const AuthForm = () => {
+  const dispatch = useAppDispatch();
+  const { isAuth, isLoading, error } = useAppSelector((state) => state.auth);
 
-type FormData = z.infer<typeof schema>;
-
-export const AuthForm: React.FC = () => {
-  const form = useForm<FormData>({
-    resolver: zodResolver(schema),
+  const form = useForm<AuthFormData>({
+    resolver: zodResolver(authFormSchema),
     defaultValues: {
       login: "",
       password: "",
     },
   });
 
-  const isAuth = useAppSelector((state) => state.auth.isAuth);
-  const isLoading = useAppSelector((state) => state.auth.isLoading);
-  const error = useAppSelector((state) => state.auth.error);
-
-  const [passwordIsVisible, setPasswordIsVisible] = useState<boolean>(false);
-
-  const togglePasswordVisible = () => setPasswordIsVisible(!passwordIsVisible);
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const {
-    formState: { errors },
-    handleSubmit,
-    control,
-  } = form;
-
-  useEffect(() => {
-    if (isAuth) {
-      const redirectTo = location.state?.prev_location || "/";
-      navigate(redirectTo);
-    }
-  }, [isAuth, navigate, location.state?.prev_location]);
+  useAuthRedirect(isAuth);
 
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => {
         dispatch(clearError());
       }, 5000);
-
       return () => clearTimeout(timer);
     }
   }, [error, dispatch]);
 
   const onSubmit = useCallback(
-    (data: FormData) => {
+    (data: AuthFormData) => {
       dispatch(loginAsync(data));
     },
     [dispatch]
@@ -86,70 +44,22 @@ export const AuthForm: React.FC = () => {
   return (
     <div>
       <Form {...form}>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
-            control={control}
+            control={form.control}
             name="login"
             render={({ field }) => (
-              <FormItem className="">
-                <FormLabel htmlFor="login">Имя пользователя</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Input
-                      id="login"
-                      className={cn("pl-10 transition", {
-                        "border-red-600 bg-red-100": errors.login,
-                      })}
-                      {...field}
-                    />
-                    <RiUserLine
-                      size={16}
-                      className="absolute left-3 top-3 fill-blue-700"
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+              <LoginField field={field} error={!!form.formState.errors.login} />
             )}
           />
           <FormField
-            control={control}
+            control={form.control}
             name="password"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel htmlFor="password">Пароль</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={passwordIsVisible ? "text" : "password"}
-                      className={cn("px-10 transition", {
-                        "border-red-600 bg-red-100": errors.password,
-                      })}
-                      {...field}
-                    />
-                    <RiLockFill
-                      size={16}
-                      className="absolute left-3 top-3 fill-blue-700"
-                    />
-                    <RiEyeLine
-                      size={16}
-                      className={cn("absolute right-3 top-3 fill-blue-700", {
-                        hidden: !passwordIsVisible,
-                      })}
-                      onClick={togglePasswordVisible}
-                    />
-                    <RiEyeOffLine
-                      size={16}
-                      className={cn("absolute right-3 top-3 fill-blue-700", {
-                        hidden: passwordIsVisible,
-                      })}
-                      onClick={togglePasswordVisible}
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+              <PasswordField
+                field={field}
+                error={!!form.formState.errors.password}
+              />
             )}
           />
           <Button type="submit" className="w-full">
@@ -159,15 +69,10 @@ export const AuthForm: React.FC = () => {
       </Form>
 
       {error && (
-        <Alert
-          className="text-red-800 w-[350px] pt-8"
-          onClick={() => dispatch(clearError())}
-        >
-          <AlertTitle>{error.title}</AlertTitle>
-          <AlertDescription>
-            {error.error ?? "Неизвестная ошибка."}
-          </AlertDescription>
-        </Alert>
+        <AuthErrorMessage
+          error={error}
+          onClose={() => dispatch(clearError())}
+        />
       )}
     </div>
   );

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { RequestType } from "@/app/services/requestApi";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/shared";
+import { RequestType } from "@/app/services/types/request.types";
 
 interface RequestTypeFilterProps {
   selectedTypes: RequestType[];

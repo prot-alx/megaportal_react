@@ -1,6 +1,6 @@
 import { useState, useEffect, forwardRef } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Requests, useUpdateRequestMutation } from "@/app/services/requestApi";
+import { Requests, useUpdateRequestMutation } from "@/app/services/request.api";
 import {
   Dialog,
   DialogContent,

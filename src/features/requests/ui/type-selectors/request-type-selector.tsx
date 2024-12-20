@@ -6,7 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared";
-import { RequestType } from "@/app/services/requestApi";
+import { RequestType } from "@/app/services/types/request.types";
 
 // Сопоставление значений RequestType с отображаемыми текстами
 const requestTypeLabels: Record<RequestType, string> = {

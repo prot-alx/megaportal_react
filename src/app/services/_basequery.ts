@@ -11,7 +11,7 @@ export const baseQuery: BaseQueryFn<
     let result;
     if (typeof args === "string") {
       result = await axiosInstance.get(args, {
-        withCredentials: true, // добавляем для строковых запросов
+        withCredentials: true,
       });
     } else {
       const { url, method, data, headers } = args;
@@ -23,7 +23,7 @@ export const baseQuery: BaseQueryFn<
           "Content-Type": "application/json",
         },
         data,
-        withCredentials: true, // добавляем для объектных запросов
+        withCredentials: true,
       };
       result = await axiosInstance(config);
     }
@@ -31,9 +31,7 @@ export const baseQuery: BaseQueryFn<
   } catch (axiosError) {
     const err = axiosError as AxiosError;
 
-    // Добавляем обработку 401 ошибки
     if (err.response?.status === 401) {
-      // Можно добавить редирект на логин или обновление токена
       window.location.href = "/login";
     }
 

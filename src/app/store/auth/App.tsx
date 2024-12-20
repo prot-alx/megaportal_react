@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { appRouter } from "@/app/app-router";
-import { checkAuth } from "./auth-check";
+import { checkAuth } from "./auth.check";
 import { RouterProvider } from "react-router-dom";
+import { LoadingSpinner } from "@/shared";
 
 export const App = () => {
   const [isInitialAuthChecked, setIsInitialAuthChecked] = useState(false);
@@ -12,12 +13,10 @@ export const App = () => {
     const init = async () => {
       if (!isInitialAuthChecked) {
         try {
-          // Если мы уже на странице логина, не делаем проверку
-          if (window.location.pathname === '/login') {
+          if (window.location.pathname === "/login") {
             setIsInitialAuthChecked(true);
             return;
           }
-          
           await checkAuth();
         } finally {
           if (mounted) {
@@ -34,9 +33,12 @@ export const App = () => {
     };
   }, []);
 
-  // Показываем loader только при первой проверке
   if (!isInitialAuthChecked) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex bg-slate-200 items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   return <RouterProvider router={appRouter} />;

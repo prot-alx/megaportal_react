@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { RequestStatus } from "./services/requestApi";
 import { AllRequests, BaseLayout, PrivateRoute } from "@/widgets";
 import { AuthPage } from "@/pages";
+import { RequestStatus } from "./services/types/request.types";
 
 export const appRouter = createBrowserRouter([
   {

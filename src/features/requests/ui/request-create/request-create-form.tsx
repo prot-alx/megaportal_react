@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import {
   useCreateRequestMutation,
-  RequestType,
-} from "@/app/services/requestApi";
+} from "@/app/services/request.api";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +31,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { RequestTypeSelectorNoId } from "@/features";
+import { RequestType } from "@/app/services/types/request.types";
 
 const schema = z.object({
   clientNumber: z

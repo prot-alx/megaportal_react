@@ -10,18 +10,20 @@ import {
 import { RequestTableRow } from "@/entities";
 import { RequestTypeFilter, RequestPagination } from "@/features";
 import { RiEditLine } from "@remixicon/react";
-import {
-  RequestStatus,
-  RequestType,
-  useGetRequestsQuery,
-} from "@/app/services/requestApi";
-import { EmployeeRole, useGetEmployeesQuery } from "@/app/services/employeeApi";
+import { useGetRequestsQuery } from "@/app/services/request.api";
+import { useGetEmployeesQuery } from "@/app/services/employee.api";
+import { EmployeeRole } from "@/app/services/types/employee.types";
+import { RequestStatus, RequestType } from "@/app/services/types/request.types";
 
 interface RequestsProps {
   status: RequestStatus[];
 }
 
-export const AllRequests: React.FC<RequestsProps> = ({ status }: { status: RequestStatus[] }) => {
+export const AllRequests: React.FC<RequestsProps> = ({
+  status,
+}: {
+  status: RequestStatus[];
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTypes, setSelectedTypes] = useState<RequestType[]>([]);
 

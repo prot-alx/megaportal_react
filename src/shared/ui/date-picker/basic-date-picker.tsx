@@ -11,7 +11,6 @@ import { CalendarIcon } from "@radix-ui/react-icons";
 import { format, parse } from "date-fns";
 import { ru } from "date-fns/locale";
 
-
 const parseDateString = (dateString: string): Date => {
   return parse(dateString, "dd-MM-yyyy", new Date(), { locale: ru });
 };

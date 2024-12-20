@@ -3,7 +3,7 @@ import { AuthService } from "./auth.service";
 import {
   refresh,
   logout,
-} from "./auth-slice";
+} from "./auth.slice";
 
 export const checkAuth = async () => {
   try {

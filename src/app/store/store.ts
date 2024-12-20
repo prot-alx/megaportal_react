@@ -1,9 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import { useDispatch, TypedUseSelectorHook, useSelector } from "react-redux";
-import authSlice from "./auth/auth-slice";
-import { requestsApi } from "../services/requestApi";
-import { employeeApi } from "../services/employeeApi";
+import { requestsApi } from "../services/request.api";
+import { employeeApi } from "../services/employee.api";
+import authSlice from "./auth/auth.slice";
 
 export const store = configureStore({
   reducer: {
