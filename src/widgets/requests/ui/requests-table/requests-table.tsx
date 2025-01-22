@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { io } from "socket.io-client";
 import {
   LoadingSpinner,
   Table,
@@ -6,6 +7,7 @@ import {
   TableHeader,
   TableRow,
   TableHead,
+  baseURL,
 } from "@/shared";
 import { RequestTableRow } from "@/entities";
 import { RequestTypeFilter, RequestPagination } from "@/features";
@@ -38,11 +40,44 @@ export const AllRequests: React.FC<RequestsProps> = ({
     });
   };
 
-  const { data, isError, isLoading } = useGetRequestsQuery({
-    page: currentPage,
-    status,
-    type: selectedTypes.length > 0 ? selectedTypes : undefined,
-  });
+  const { data, isError, isLoading, refetch } = useGetRequestsQuery(
+    {
+      page: currentPage,
+      status,
+      type: selectedTypes.length > 0 ? selectedTypes : undefined,
+    },
+    {
+      pollingInterval: 0,
+      refetchOnMountOrArgChange: false,
+    }
+  );
+
+  useEffect(() => {
+    const socket = io(baseURL, {
+      withCredentials: true,
+    });
+
+    socket.on("requestUpdate", (update) => {
+      console.log("Received update:", update);
+      refetch();
+    });
+
+    socket.on("connect", () => {
+      console.log("Connected to WebSocket server");
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("WebSocket connection error:", error);
+    });
+
+    return () => {
+      socket.off("requestUpdate");
+      socket.off("connect");
+      socket.off("connect_error");
+      socket.disconnect();
+    };
+  }, [refetch]);
+
   const {
     data: employeesForSelector,
     error: isEmployeeError,
@@ -74,7 +109,6 @@ export const AllRequests: React.FC<RequestsProps> = ({
 
   const { requests, totalPages } = data;
 
-  // Проверяем, содержатся ли "CLOSED" или "CANCELLED" в массиве статусов
   const isClosedOrCancelled =
     status.includes(RequestStatus.CLOSED) ||
     status.includes(RequestStatus.CANCELLED);
