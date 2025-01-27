@@ -59,7 +59,7 @@ export const AuthService = {
     try {
       const response = await axiosInstance.get<IUserMeResponse>(checkAuthURL);
       console.log('Response.data: ', response.data);
-      return response.data.user; // обратите внимание, что данные в .user
+      return response.data.user;
     } catch (error) {
       console.error("Ошибка при получении данных пользователя:", error);
       throw error;

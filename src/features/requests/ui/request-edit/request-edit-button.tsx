@@ -1,6 +1,6 @@
 import { useState, useEffect, forwardRef } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Requests, useUpdateRequestMutation } from "@/app/services/request.api";
+import { useUpdateRequestMutation } from "@/app/services/request.api";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,7 @@ import { RiEditLine } from "@remixicon/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { CancelRequestButton } from "@/features";
+import { Requests } from "@/app/services/types/request.types";
 
 // Определение схемы валидации с помощью zod
 const schema = z.object({

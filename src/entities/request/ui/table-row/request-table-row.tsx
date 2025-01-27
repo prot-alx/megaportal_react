@@ -112,7 +112,7 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
           {!isDateLoading && !isDateError && (
             <RequestDatePicker
               id={request.id}
-              initialDate={request.request_updated_at} // Используем updated_at
+              initialDate={request.request_updated_at}
               onDateChange={() => {}}
               requestStatus={request.status}
             />
@@ -128,7 +128,7 @@ export const RequestTableRow: React.FC<RequestTableRowProps> = ({
           {!isDateLoading && !isDateError && (
             <RequestDatePicker
               id={request.id}
-              initialDate={request.request_date} // Используем request_date
+              initialDate={request.request_date}
               onDateChange={(id, date) =>
                 handleUpdateRequestDate(id, format(date, "yyyy-MM-dd"))
               }
