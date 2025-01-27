@@ -58,7 +58,7 @@ export const AuthService = {
   async getMe(): Promise<IUserMe | undefined> {
     try {
       const response = await axiosInstance.get<IUserMeResponse>(checkAuthURL);
-      console.log('Response.data: ', response.data);
+      //console.log('Response.data: ', response.data);
       return response.data.user;
     } catch (error) {
       console.error("Ошибка при получении данных пользователя:", error);

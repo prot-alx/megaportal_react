@@ -8,6 +8,7 @@ import {
 export const employeeApi = createApi({
   reducerPath: "employeeApi",
   baseQuery,
+  tagTypes: ["Employee"] as const,
   endpoints: (builder) => ({
     getEmployees: builder.query<EmployeeSummaryDto[], EmployeeFilterParams>({
       query: ({ roles, isActive }) => {
@@ -30,6 +31,7 @@ export const employeeApi = createApi({
 
         return queryString;
       },
+      providesTags: [{ type: "Employee", id: "LIST" }],
     }),
   }),
 });

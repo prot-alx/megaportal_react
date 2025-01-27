@@ -57,8 +57,8 @@ export const RequestPagination: React.FC<{
               href="#"
               onClick={(e) => handlePageClick(page + 1, e)}
               className={cn({
-                'bg-white': currentPage === page + 1, // Apply white background if current page
-                'text-black': true // Default text color
+                'bg-white': currentPage === page + 1,
+                'text-black': true
               })}
             >
               {page + 1}

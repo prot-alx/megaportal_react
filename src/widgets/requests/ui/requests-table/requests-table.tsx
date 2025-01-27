@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { io } from "socket.io-client";
+import React, { useState } from "react";
 import {
   LoadingSpinner,
   Table,
@@ -7,7 +6,6 @@ import {
   TableHeader,
   TableRow,
   TableHead,
-  baseURL,
 } from "@/shared";
 import { RequestTableRow } from "@/entities";
 import { RequestTypeFilter, RequestPagination } from "@/features";
@@ -40,7 +38,7 @@ export const AllRequests: React.FC<RequestsProps> = ({
     });
   };
 
-  const { data, isError, isLoading, refetch } = useGetRequestsQuery(
+  const { data, isError, isLoading } = useGetRequestsQuery(
     {
       page: currentPage,
       status,
@@ -51,32 +49,6 @@ export const AllRequests: React.FC<RequestsProps> = ({
       refetchOnMountOrArgChange: false,
     }
   );
-
-  useEffect(() => {
-    const socket = io(baseURL, {
-      withCredentials: true,
-    });
-
-    socket.on("requestUpdate", (update) => {
-      console.log("Received update:", update);
-      refetch();
-    });
-
-    socket.on("connect", () => {
-      console.log("Connected to WebSocket server");
-    });
-
-    socket.on("connect_error", (error) => {
-      console.error("WebSocket connection error:", error);
-    });
-
-    return () => {
-      socket.off("requestUpdate");
-      socket.off("connect");
-      socket.off("connect_error");
-      socket.disconnect();
-    };
-  }, [refetch]);
 
   const {
     data: employeesForSelector,
